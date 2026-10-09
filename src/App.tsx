@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
+import { EntrySplash } from './components/EntrySplash';
 import { Dashboard } from './pages/Dashboard';
 import { Groups } from './pages/Groups';
 import { GroupDetail } from './pages/GroupDetail';
@@ -14,7 +15,9 @@ import { ScanPay } from './pages/ScanPay';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <>
+      <EntrySplash />
+      <BrowserRouter>
       <Routes>
         {/* Auth screens (no bottom nav) */}
         <Route path="/login" element={<Login />} />
@@ -35,5 +38,6 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+  </>
   );
 }

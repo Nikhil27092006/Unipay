@@ -15,11 +15,15 @@ export function AppHeader({ showBack, title, rightAction }: AppHeaderProps) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '16px 16px 8px',
-      background: 'var(--color-bg, #F8FAFD)',
+      padding: '14px 16px 10px',
+      background: 'rgba(248, 250, 253, 0.82)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      borderBottom: '1px solid rgba(226, 232, 240, 0.65)',
       position: 'sticky',
       top: 0,
-      zIndex: 30,
+      zIndex: 35,
+      transition: 'all 0.2s ease',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {showBack ? (
@@ -36,7 +40,15 @@ export function AppHeader({ showBack, title, rightAction }: AppHeaderProps) {
             </svg>
           </button>
         ) : (
-          <UniPayLogo />
+          <div
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('cowallet-replay-splash'));
+            }}
+            style={{ cursor: 'pointer' }}
+            title="Tap to replay intro"
+          >
+            <CoWalletLogo />
+          </div>
         )}
         {title && !showBack && (
           <span style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{title}</span>
@@ -82,20 +94,23 @@ export function AppHeader({ showBack, title, rightAction }: AppHeaderProps) {
   );
 }
 
-export function UniPayLogo() {
+export function CoWalletLogo({ size = 32 }: { size?: number }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      {/* U logo mark */}
-      <div style={{
-        width: 32, height: 32, borderRadius: 10,
-        background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M6 4v10c0 3.314 2.686 6 6 6s6-2.686 6-6V4" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-        </svg>
-      </div>
-      <span style={{ fontSize: 18, fontWeight: 800, color: '#111827', letterSpacing: '-0.3px' }}>UniPay</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+      <img
+        src="/logo.png"
+        alt="CoWallet Logo"
+        style={{
+          width: size,
+          height: size,
+          objectFit: 'contain',
+          borderRadius: 8,
+          display: 'block',
+        }}
+      />
+      <span style={{ fontSize: 18, fontWeight: 800, color: '#111827', letterSpacing: '-0.3px' }}>CoWallet</span>
     </div>
   );
 }
+
+export const UniPayLogo = CoWalletLogo;

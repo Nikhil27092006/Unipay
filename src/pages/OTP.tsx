@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UniPayLogo } from '../components/AppHeader';
+import { CoWalletLogo } from '../components/AppHeader';
 
 export function OTP() {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export function OTP() {
       display: 'flex', flexDirection: 'column', padding: '40px 24px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 48 }}>
-        <UniPayLogo />
+        <CoWalletLogo size={34} />
       </div>
 
       <div style={{ textAlign: 'center', marginBottom: 36 }}>

@@ -285,7 +285,7 @@ export interface PersonalPayment {
 export const MOCK_PERSONAL_PAYMENTS: PersonalPayment[] = [
   // ── Flatmates
   { id: 'pp1', groupId: 'g1', groupName: 'Flatmates', groupIcon: 'flatmates', groupTheme: '#2563EB', groupCardBg: '#DBEAFE',
-    merchant: 'D-Mart', note: 'Monthly groceries', amount: 1240, dir: 'paid', date: 'Today, 10:30 AM', status: 'success' },
+    merchant: 'D-Mart', note: 'Monthly groceries', amount: 1240, dir: 'paid', date: 'Today, 10:30 PM', status: 'success' },
   { id: 'pp2', groupId: 'g1', groupName: 'Flatmates', groupIcon: 'flatmates', groupTheme: '#2563EB', groupCardBg: '#DBEAFE',
     merchant: 'Wallet Top-up', note: 'Added money to group', amount: 2000, dir: 'added', date: 'Yesterday, 6:00 PM', status: 'success' },
   { id: 'pp3', groupId: 'g1', groupName: 'Flatmates', groupIcon: 'flatmates', groupTheme: '#2563EB', groupCardBg: '#DBEAFE',

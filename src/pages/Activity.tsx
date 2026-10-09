@@ -38,7 +38,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
   },
   {
     id: 'tx_2',
-    title: 'UniPay Group Pool',
+    title: 'CoWallet Group Pool',
     groupName: 'Flatmates',
     groupId: 'g1',
     groupIcon: 'flatmates',
@@ -53,7 +53,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
   },
   {
     id: 'tx_3',
-    title: 'UniPay Group Pool',
+    title: 'CoWallet Group Pool',
     groupName: 'Flatmates',
     groupId: 'g1',
     groupIcon: 'flatmates',
@@ -68,7 +68,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
   },
   {
     id: 'tx_4',
-    title: 'UniPay Group Pool',
+    title: 'CoWallet Group Pool',
     groupName: 'Flatmates',
     groupId: 'g1',
     groupIcon: 'flatmates',
@@ -83,7 +83,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
   },
   {
     id: 'tx_5',
-    title: 'UniPay Group Pool',
+    title: 'CoWallet Group Pool',
     groupName: 'Flatmates',
     groupId: 'g1',
     groupIcon: 'flatmates',
@@ -98,7 +98,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
   },
   {
     id: 'tx_6',
-    title: 'UniPay Group Pool',
+    title: 'CoWallet Group Pool',
     groupName: 'Flatmates',
     groupId: 'g1',
     groupIcon: 'flatmates',

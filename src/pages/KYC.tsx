@@ -36,7 +36,7 @@ export function KYC() {
           </div>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: '#111827', marginBottom: 8 }}>KYC Verified!</h2>
           <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 32, lineHeight: 1.6 }}>
-            Your identity has been verified.<br/>You can now use all UniPay features.
+            Your identity has been verified.<br/>You can now use all CoWallet features.
           </p>
           <button className="btn-primary" onClick={() => navigate('/')}>
             Go to Dashboard

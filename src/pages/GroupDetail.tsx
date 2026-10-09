@@ -102,7 +102,7 @@ export function GroupDetail() {
     },
     {
       id: 'gtx_4',
-      title: 'UniPay Group Pool',
+      title: 'CoWallet Group Pool',
       category: 'Pool Contribution',
       member: 'Gaurang',
       memberAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces',
@@ -126,7 +126,7 @@ export function GroupDetail() {
     },
     {
       id: 'gtx_6',
-      title: 'UniPay Group Pool',
+      title: 'CoWallet Group Pool',
       category: 'Pool Contribution',
       member: 'Nikhil (You)',
       memberAvatar: CURRENT_USER.avatar,
@@ -1344,7 +1344,7 @@ export function GroupDetail() {
               width: 42,
               height: 42,
               borderRadius: '50%',
-              background: showActionMenu ? '#EA580C' : '#F4F4F5',
+              background: showActionMenu ? '#2563EB' : '#F4F4F5',
               color: showActionMenu ? '#FFFFFF' : '#111827',
               border: 'none',
               display: 'flex',
@@ -1389,7 +1389,7 @@ export function GroupDetail() {
             }}
           />
 
-          {/* Right Orange Send Button with Paper Plane */}
+          {/* Right Blue Send Button with Paper Plane */}
           <button
             onClick={handleSendMessage}
             aria-label="Send"
@@ -1397,14 +1397,14 @@ export function GroupDetail() {
               width: 42,
               height: 42,
               borderRadius: '50%',
-              background: '#EA580C',
+              background: '#2563EB',
               border: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
               flexShrink: 0,
-              boxShadow: '0 3px 12px rgba(234, 88, 12, 0.4)',
+              boxShadow: '0 3px 14px rgba(37, 99, 235, 0.45)',
               transition: 'transform 0.12s ease',
             }}
             onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.92)')}
@@ -1759,7 +1759,7 @@ export function GroupDetail() {
               </svg>
 
               <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', marginTop: 8 }}>
-                UPI ID: unipay.{group.id}@okhdfcbank
+                UPI ID: cowallet.{group.id}@okhdfcbank
               </div>
             </div>
 

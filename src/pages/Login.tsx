@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UniPayLogo } from '../components/AppHeader';
+import { CoWalletLogo } from '../components/AppHeader';
 
 export function Login() {
   const navigate = useNavigate();
@@ -26,26 +26,26 @@ export function Login() {
       padding: '40px 24px',
     }}>
       {/* Logo */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
-        <UniPayLogo />
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 36 }}>
+        <CoWalletLogo size={34} />
       </div>
 
       {/* Hero */}
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
-        <div style={{
-          width: 80, height: 80, borderRadius: 24,
-          background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 20px',
-          boxShadow: '0 8px 24px rgba(37,99,235,0.3)',
-        }}>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
-              stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
+        <img
+          src="/logo.png"
+          alt="CoWallet"
+          style={{
+            width: 84,
+            height: 84,
+            objectFit: 'contain',
+            margin: '0 auto 16px',
+            display: 'block',
+            filter: 'drop-shadow(0 8px 16px rgba(37,99,235,0.25))',
+          }}
+        />
         <h1 style={{ fontSize: 26, fontWeight: 800, color: '#111827', marginBottom: 8 }}>
-          Welcome to UniPay
+          Welcome to CoWallet
         </h1>
         <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6 }}>
           Groups. Payments. Together.<br/>

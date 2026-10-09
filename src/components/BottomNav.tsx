@@ -10,8 +10,6 @@ export function BottomNav() {
     return path.startsWith(route);
   };
 
-  const isDark = false;
-
   return (
     <div style={{
       position: 'fixed',
@@ -20,31 +18,35 @@ export function BottomNav() {
       transform: 'translateX(-50%)',
       width: '100%',
       maxWidth: 390,
-      background: isDark ? '#0A0F1D' : '#FFFFFF',
-      borderTop: isDark ? '1px solid #1E293B' : '1px solid #F1F5F9',
-      zIndex: 40,
-      boxShadow: isDark ? '0 -4px 20px rgba(0,0,0,0.5)' : '0 -4px 20px rgba(0,0,0,0.04)',
+      // Translucent frosted glass styling
+      background: 'rgba(255, 255, 255, 0.78)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      borderTop: '1px solid rgba(255, 255, 255, 0.85)',
+      boxShadow: '0 -8px 28px rgba(15, 23, 42, 0.07), 0 -1px 3px rgba(0, 0, 0, 0.02)',
+      zIndex: 50,
       paddingBottom: 'calc(6px + env(safe-area-inset-bottom, 0px))',
-      transition: 'background 0.2s ease, border-color 0.2s ease',
+      transition: 'all 0.2s ease',
     }}>
       <nav style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
-        padding: '8px 6px 4px',
+        padding: '8px 10px 4px',
+        position: 'relative',
       }}>
         {/* Home */}
         <NavItem
           active={isActive('/')}
           onClick={() => navigate('/')}
           label="Home"
-          isDark={isDark}
           icon={
-            <svg width="22" height="22" viewBox="0 0 24 24">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill={isActive('/') ? '#2563EB' : 'none'}>
               <path
                 d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6a1 1 0 00-1-1h-4a1 1 0 00-1 1v6H4a1 1 0 01-1-1v-9.5z"
-                fill={isActive('/') ? 'currentColor' : 'none'}
-                stroke="currentColor"
+                stroke={isActive('/') ? '#2563EB' : '#94A3B8'}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -58,67 +60,126 @@ export function BottomNav() {
           active={isActive('/groups')}
           onClick={() => navigate('/groups')}
           label="Groups"
-          isDark={isDark}
           icon={
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z"
-                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                stroke={isActive('/groups') ? '#2563EB' : '#94A3B8'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle
+                cx="9" cy="7" r="4"
+                stroke={isActive('/groups') ? '#2563EB' : '#94A3B8'}
+                strokeWidth="2"
+              />
+              <path
+                d="M22 21v-2a4 4 0 0 0-3-3.87"
+                stroke={isActive('/groups') ? '#2563EB' : '#94A3B8'}
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M16 3.13a4 4 0 0 1 0 7.75"
+                stroke={isActive('/groups') ? '#2563EB' : '#94A3B8'}
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           }
         />
 
-        {/* Send / Paper Plane – Center elevated */}
-        <button
-          onClick={() => navigate('/scan')}
-          aria-label="Send & Pay"
-          style={{
-            width: 54,
-            height: 54,
+        {/* Center elevated / tilted floating send button */}
+        <div style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          {/* Luminous cyan/blue aura halo behind button */}
+          <div style={{
+            position: 'absolute',
+            top: -24,
+            width: 72,
+            height: 72,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
-            border: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 0 6px rgba(37, 99, 235, 0.16), 0 8px 24px rgba(37, 99, 235, 0.42)',
-            cursor: 'pointer',
-            marginTop: -22,
-            flexShrink: 0,
-            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-          }}
-          onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.92)')}
-          onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
-          onTouchStart={e => (e.currentTarget.style.transform = 'scale(0.92)')}
-          onTouchEnd={e => (e.currentTarget.style.transform = 'scale(1)')}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ transform: 'translate(-1px, 1px)' }}>
-            <path
-              d="M22 2L15 22L11 13L2 9L22 2Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M22 2L11 13"
-              stroke="#1D4ED8"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+            background: 'radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, rgba(37, 99, 235, 0.22) 52%, transparent 74%)',
+            filter: 'blur(8px)',
+            pointerEvents: 'none',
+          }} />
+
+          <button
+            onClick={() => navigate('/scan')}
+            aria-label="Send & Pay"
+            style={{
+              position: 'relative',
+              zIndex: 2,
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #38BDF8 0%, #2563EB 52%, #1D4ED8 100%)',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 24px rgba(56, 189, 248, 0.45), 0 8px 24px rgba(37, 99, 235, 0.38)',
+              cursor: 'pointer',
+              marginTop: -26,
+              flexShrink: 0,
+              transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'scale(1.06)';
+              e.currentTarget.style.boxShadow = '0 0 30px rgba(56, 189, 248, 0.6), 0 10px 28px rgba(37, 99, 235, 0.5)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 0 24px rgba(56, 189, 248, 0.45), 0 8px 24px rgba(37, 99, 235, 0.38)';
+            }}
+            onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.92)'; }}
+            onMouseUp={e => { e.currentTarget.style.transform = 'scale(1.06)'; }}
+            onTouchStart={e => { e.currentTarget.style.transform = 'scale(0.92)'; }}
+            onTouchEnd={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+          >
+            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" style={{ transform: 'translate(-1px, 1px)' }}>
+              <path
+                d="M22 2L15 22L11 13L2 9L22 2Z"
+                fill="white"
+                stroke="white"
+                strokeWidth="1"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M22 2L11 13"
+                stroke="#1D4ED8"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
 
         {/* Activity */}
         <NavItem
           active={isActive('/activity')}
           onClick={() => navigate('/activity')}
           label="Activity"
-          isDark={isDark}
           icon={
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-              <polyline points="12 6 12 12 16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle
+                cx="12" cy="12" r="9"
+                stroke={isActive('/activity') ? '#2563EB' : '#94A3B8'}
+                strokeWidth="2"
+              />
+              <polyline
+                points="12 7 12 12 15 14"
+                stroke={isActive('/activity') ? '#2563EB' : '#94A3B8'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           }
         />
@@ -128,34 +189,43 @@ export function BottomNav() {
           active={isActive('/profile')}
           onClick={() => navigate('/profile')}
           label="Profile"
-          isDark={isDark}
           icon={
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"
-                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                stroke={isActive('/profile') ? '#2563EB' : '#94A3B8'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle
+                cx="12" cy="7" r="4"
+                stroke={isActive('/profile') ? '#2563EB' : '#94A3B8'}
+                strokeWidth="2"
+              />
             </svg>
           }
         />
       </nav>
+
       {/* Home Indicator bar */}
       <div style={{
         width: 134,
         height: 4.5,
-        background: isDark ? '#334155' : '#111827',
+        background: '#0F172A',
         borderRadius: 3,
-        margin: '2px auto 0',
-        opacity: 0.85,
+        margin: '3px auto 1px',
+        opacity: 0.18,
       }} />
     </div>
   );
 }
 
-function NavItem({ active, onClick, label, icon, isDark }: {
+function NavItem({ active, onClick, label, icon }: {
   active: boolean;
   onClick: () => void;
   label: string;
   icon: React.ReactNode;
-  isDark?: boolean;
 }) {
   return (
     <button
@@ -168,14 +238,40 @@ function NavItem({ active, onClick, label, icon, isDark }: {
         background: 'none',
         border: 'none',
         cursor: 'pointer',
-        padding: '4px 12px',
-        color: active ? (isDark ? '#00D084' : '#2563EB') : (isDark ? '#64748B' : '#9CA3AF'),
-        transition: 'color 0.15s',
+        padding: '4px 10px',
+        color: active ? '#2563EB' : '#94A3B8',
+        transition: 'all 0.15s ease',
         minWidth: 48,
+        position: 'relative',
       }}
     >
-      {icon}
-      <span style={{ fontSize: 11, fontWeight: active ? 700 : 500 }}>{label}</span>
+      <div style={{
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 28,
+        height: 28,
+      }}>
+        {active && (
+          <div style={{
+            position: 'absolute',
+            inset: -4,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+        )}
+        {icon}
+      </div>
+      <span style={{
+        fontSize: 11,
+        fontWeight: active ? 700 : 500,
+        letterSpacing: '-0.2px',
+        transition: 'font-weight 0.15s',
+      }}>
+        {label}
+      </span>
     </button>
   );
 }
