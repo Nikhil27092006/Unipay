@@ -10,7 +10,7 @@ export function ScanPay() {
 
   return (
     <>
-      <AppHeader showBack title="Scan & Pay" />
+      <AppHeader showBack title="Scan QR" />
       <div className="page-content" style={{ paddingTop: 8 }}>
         {/* QR Scanner mockup */}
         <div style={{

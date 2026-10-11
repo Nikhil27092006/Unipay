@@ -181,12 +181,12 @@ export function EntrySplash({ onComplete }: { onComplete?: () => void }) {
     { top: '15%', right: '15%', size: 11, color: '#818CF8' },
     { top: '38%', left: '7%',   size: 7,  color: '#34D399' },
     { top: '38%', right: '8%',  size: 8,  color: '#A78BFA' },
-    { top: '60%', left: '10%',  size: 8,  color: '#F472B6' },
+    { top: '60%', left: '10%',  size: 8,  color: '#34D399' },
     { top: '62%', right: '11%', size: 7,  color: '#60A5FA' },
     { top: '25%', left: '35%',  size: 5,  color: '#2563EB' },
     { top: '22%', right: '36%', size: 5,  color: '#9333EA' },
-    { top: '55%', left: '27%',  size: 6,  color: '#06B6D4' },
-    { top: '50%', right: '28%', size: 6,  color: '#EC4899' },
+    { top: '55%', left: '27%',  size: 6,  color: '#60A5FA' },
+    { top: '50%', right: '28%', size: 6,  color: '#A78BFA' },
   ];
 
   return (

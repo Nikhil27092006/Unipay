@@ -6,11 +6,38 @@ import {
   formatINR, pct, type Group, type Transaction, type PersonalPayment
 } from '../data/mockData';
 import { EmojiBadge } from '../components/EmojiBadge';
+import { AddMoneyModal } from '../components/AddMoneyModal';
 
 export function Dashboard() {
   const navigate = useNavigate();
   const [showRewardsModal, setShowRewardsModal] = useState(false);
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Personal UPI Live Balance State
+  const [personalBalance, setPersonalBalance] = useState(CURRENT_USER.personalBalance);
+  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+  const [isFetchingBalance, setIsFetchingBalance] = useState(false);
+  const [balanceLastFetched, setBalanceLastFetched] = useState<string | null>('Today, 1:05 PM');
+  const [fetchSuccessAnim, setFetchSuccessAnim] = useState(false);
+
+  const handleFetchBalance = () => {
+    setShowBalanceModal(true);
+    setIsFetchingBalance(true);
+    setTimeout(() => {
+      setIsFetchingBalance(false);
+      setPersonalBalance(3250);
+      const now = new Date();
+      setBalanceLastFetched(`Just now, ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+      setFetchSuccessAnim(true);
+      setTimeout(() => setFetchSuccessAnim(false), 2400);
+    }, 750);
+  };
+
+  const handleOpenPaymentHub = () => {
+    window.dispatchEvent(new CustomEvent('cowallet-open-payment-modal'));
+  };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText('https://cowallet.app/join/NIKHIL50');
@@ -26,15 +53,14 @@ export function Dashboard() {
       <div className="page-content" style={{ paddingTop: 4, paddingBottom: 16 }}>
 
         {/* ── Greeting ── */}
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 18 }}>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: '#111827', lineHeight: 1.2, display: 'flex', alignItems: 'center', gap: 6 }}>
             Hey, {CURRENT_USER.name} <EmojiBadge name="wave" size="inline" />
           </h1>
           <p style={{ fontSize: 13, color: '#6B7280', marginTop: 3, fontWeight: 500 }}>
-            Groups. Payments. Together.
+            Personal UPI + Shared Group Vaults in one seamless place.
           </p>
         </div>
-
         {/* ── Your Groups ── */}
         <section style={{ marginBottom: 20 }}>
           <div className="section-header">
@@ -60,56 +86,89 @@ export function Dashboard() {
           </div>
         </section>
 
-        {/* ── Quick Actions ── */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          marginBottom: 24,
-          gap: 4,
-        }}>
-          <QuickAction
-            label="Scan & Pay"
+        {/* ── Quick Actions (App White & Blue Theme: Pay, Add Money, Create, Scan, Join) ── */}
+        <div className="feature-actions-bar">
+          {/* 1. Pay (App Primary Light / Blue Accent Squircle) */}
+          <button
+            className="feature-action-btn feature-action-btn--pay"
+            onClick={handleOpenPaymentHub}
+            aria-label="Pay"
+          >
+            <div className="feature-btn-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translate(1px, -1px)' }}>
+                <path d="M22 2L11 13" />
+                <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+              </svg>
+            </div>
+            <span className="feature-btn-label">Pay</span>
+          </button>
+
+          {/* 2. Add Money (White Squircle) */}
+          <button
+            className="feature-action-btn feature-action-btn--dark"
+            onClick={() => setShowAddMoneyModal(true)}
+            aria-label="Add Money"
+          >
+            <div className="feature-btn-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </div>
+            <span className="feature-btn-label">Add Money</span>
+          </button>
+
+          {/* 3. Create (White Squircle) */}
+          <button
+            className="feature-action-btn feature-action-btn--dark"
+            onClick={() => navigate('/create-group')}
+            aria-label="Create Group"
+          >
+            <div className="feature-btn-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 00-3-3.87" />
+                <path d="M16 3.13a4 4 0 010 7.75" />
+              </svg>
+            </div>
+            <span className="feature-btn-label">Create</span>
+          </button>
+
+          {/* 4. Scan (White Squircle) */}
+          <button
+            className="feature-action-btn feature-action-btn--dark"
             onClick={() => navigate('/scan')}
-            icon={
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"
-                  stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="7" y1="12" x2="17" y2="12" stroke="#2563EB" strokeWidth="2" strokeLinecap="round"/>
+            aria-label="Scan QR"
+          >
+            <div className="feature-btn-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                <circle cx="17.5" cy="17.5" r="1.5" fill="currentColor" />
+                <path d="M14 14h.01M14 21h.01M21 14h.01" strokeWidth="2.5" />
               </svg>
-            }
-          />
-          <QuickAction
-            label="Pay Contact"
-            onClick={() => navigate('/pay-contact')}
-            icon={
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <circle cx="9" cy="7" r="4" stroke="#2563EB" strokeWidth="1.8"/>
-                <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round"/>
-                <path d="M19 8v6M22 11h-6" stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round"/>
+            </div>
+            <span className="feature-btn-label">Scan</span>
+          </button>
+
+          {/* 5. Join (White Squircle) */}
+          <button
+            className="feature-action-btn feature-action-btn--dark"
+            onClick={() => navigate('/join-group')}
+            aria-label="Join Group"
+          >
+            <div className="feature-btn-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="8" cy="7" r="4" />
+                <line x1="19" y1="8" x2="19" y2="14" />
+                <line x1="16" y1="11" x2="22" y2="11" />
               </svg>
-            }
-          />
-          <QuickAction
-            label="Add Money"
-            onClick={() => navigate('/add-money')}
-            icon={
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="6" width="20" height="14" rx="3" stroke="#2563EB" strokeWidth="1.8"/>
-                <path d="M2 10h20M12 14v2M12 14v-2M12 14h2M12 14h-2" stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round"/>
-              </svg>
-            }
-          />
-          <QuickAction
-            label="Choose Group"
-            onClick={() => navigate('/groups')}
-            icon={
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
-                  stroke="#2563EB" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            }
-          />
+            </div>
+            <span className="feature-btn-label">Join</span>
+          </button>
         </div>
 
         {/* ── Recent Group Activity ── */}
@@ -177,16 +236,16 @@ export function Dashboard() {
                       <stop offset="0%" stopColor="#38BDF8" />
                       <stop offset="100%" stopColor="#0284C7" />
                     </linearGradient>
-                    <linearGradient id="giftRibbonGold" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#FDE047" />
-                      <stop offset="50%" stopColor="#F59E0B" />
-                      <stop offset="100%" stopColor="#D97706" />
+                    <linearGradient id="giftRibbonGreen" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#4ADE80" />
+                      <stop offset="50%" stopColor="#16A34A" />
+                      <stop offset="100%" stopColor="#15803D" />
                     </linearGradient>
                   </defs>
 
                   {/* Sparkles */}
                   <path d="M7 6L7.8 8.5L10.3 9.3L7.8 10.1L7 12.6L6.2 10.1L3.7 9.3L6.2 8.5L7 6Z" fill="#38BDF8" opacity="0.9" />
-                  <circle cx="18" cy="4" r="1.5" fill="#F59E0B" opacity="0.95" />
+                  <circle cx="18" cy="4" r="1.5" fill="#16A34A" opacity="0.95" />
                   <path d="M29 7L29.6 9L31.6 9.6L29.6 10.2L29 12.2L28.4 10.2L26.4 9.6L28.4 9L29 7Z" fill="#A855F7" opacity="0.9" />
 
                   {/* Box Body */}
@@ -194,17 +253,17 @@ export function Dashboard() {
                   <path d="M19 17H28V27C28 28.1 27.1 29 26 29H21C19.9 29 19 28.1 19 27V17Z" fill="url(#giftBodyBlue)" />
 
                   {/* Vertical Ribbon */}
-                  <rect x="16.5" y="17" width="3" height="12" fill="url(#giftRibbonGold)" />
+                  <rect x="16.5" y="17" width="3" height="12" fill="url(#giftRibbonGreen)" />
 
                   {/* Box Lids */}
                   <path d="M6 14C6 13.4 6.4 13 7 13H17V17H6V14Z" fill="#8B5CF6" />
                   <path d="M19 13H29C29.6 13 30 13.4 30 14V17H19V13Z" fill="#0EA5E9" />
-                  <rect x="16.5" y="13" width="3" height="4" fill="url(#giftRibbonGold)" />
+                  <rect x="16.5" y="13" width="3" height="4" fill="url(#giftRibbonGreen)" />
 
-                  {/* Gold Bow on top */}
-                  <path d="M17 13C17 13 13.5 8.5 11 10C8.8 11.2 11 13 17 13Z" fill="#FBBF24" stroke="#F59E0B" strokeWidth="0.8" />
-                  <path d="M19 13C19 13 22.5 8.5 25 10C27.2 11.2 25 13 19 13Z" fill="#FBBF24" stroke="#F59E0B" strokeWidth="0.8" />
-                  <circle cx="18" cy="13" r="2.2" fill="#F59E0B" />
+                  {/* Ribbon Bow on top */}
+                  <path d="M17 13C17 13 13.5 8.5 11 10C8.8 11.2 11 13 17 13Z" fill="#22C55E" stroke="#16A34A" strokeWidth="0.8" />
+                  <path d="M19 13C19 13 22.5 8.5 25 10C27.2 11.2 25 13 19 13Z" fill="#22C55E" stroke="#16A34A" strokeWidth="0.8" />
+                  <circle cx="18" cy="13" r="2.2" fill="#16A34A" />
                 </svg>
               </div>
 
@@ -419,7 +478,172 @@ export function Dashboard() {
           </div>
         </section>
 
+        {/* ── Personal UPI Balance Checker ── */}
+        <section style={{ marginBottom: 16 }}>
+          <button
+            onClick={handleFetchBalance}
+            style={{
+              width: '100%',
+              background: 'rgba(255, 255, 255, 0.88)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              borderRadius: 20,
+              padding: '16px 20px',
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
+              boxShadow: '0 8px 28px rgba(37, 99, 235, 0.07), 0 2px 6px rgba(15, 23, 42, 0.03)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: 14,
+                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.28)',
+                flexShrink: 0,
+              }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="3"/>
+                  <line x1="2" y1="10" x2="22" y2="10"/>
+                  <circle cx="7" cy="15" r="1.5" fill="white" stroke="none"/>
+                </svg>
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>Check UPI Balance</div>
+                <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 500, marginTop: 1 }}>Tap to fetch from NPCI switch</div>
+              </div>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.4" strokeLinecap="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </section>
+
       </div>
+
+      {/* ── Balance Sheet Modal ── */}
+      {showBalanceModal && (
+        <div className="modal-overlay" onClick={() => setShowBalanceModal(false)}>
+          <div
+            className="modal-sheet"
+            onClick={e => e.stopPropagation()}
+            style={{ paddingBottom: 32 }}
+          >
+            <div className="modal-handle" />
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: '#111827', margin: 0 }}>UPI Balance</h2>
+                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Linked to your personal UPI ID</div>
+              </div>
+              <button
+                onClick={() => setShowBalanceModal(false)}
+                style={{ background: '#F3F4F6', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, color: '#4B5563' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Balance Card */}
+            <div style={{
+              background: 'rgba(239, 246, 255, 0.85)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1.5px solid rgba(191, 219, 254, 0.9)',
+              borderRadius: 20,
+              padding: '20px',
+              marginBottom: 16,
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+              {/* Bank Row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 11, background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11, boxShadow: '0 3px 8px rgba(37, 99, 235, 0.28)' }}>
+                  HDFC
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>HDFC Bank •••• 4921</div>
+                  <div style={{ fontSize: 11, color: '#2563EB', fontWeight: 700 }}>{CURRENT_USER.upiId}</div>
+                </div>
+                <div style={{ marginLeft: 'auto', background: '#DCFCE7', border: '1px solid #86EFAC', borderRadius: 8, padding: '3px 8px', fontSize: 10.5, fontWeight: 800, color: '#16A34A' }}>
+                  NPCI Verified
+                </div>
+              </div>
+
+              {/* Balance Display */}
+              {isFetchingBalance ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.2" strokeLinecap="round" style={{ animation: 'spin 0.8s linear infinite' }}>
+                    <path d="M23 4v6h-6M1 20v-6h6"/>
+                    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                  </svg>
+                  <span style={{ fontSize: 14, color: '#2563EB', fontWeight: 700 }}>Fetching from NPCI switch...</span>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ fontSize: 32, fontWeight: 800, color: '#111827', letterSpacing: '-0.03em' }}>
+                      {isBalanceHidden ? '₹ • • • • •' : formatINR(personalBalance)}
+                    </div>
+                    <button
+                      onClick={() => setIsBalanceHidden(!isBalanceHidden)}
+                      style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: 0, display: 'flex' }}
+                    >
+                      {isBalanceHidden
+                        ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22"/></svg>
+                        : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
+                    </button>
+                  </div>
+                  <div style={{ fontSize: 11, color: fetchSuccessAnim ? '#16A34A' : '#6B7280', marginTop: 6, fontWeight: 600 }}>
+                    {fetchSuccessAnim ? '✓ Balance verified with NPCI Switch' : (balanceLastFetched ? `Last refreshed: ${balanceLastFetched}` : '')}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Refresh Button */}
+            <button
+              onClick={handleFetchBalance}
+              disabled={isFetchingBalance}
+              style={{
+                width: '100%',
+                padding: '13px',
+                background: isFetchingBalance ? '#F1F5F9' : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                color: isFetchingBalance ? '#6B7280' : '#FFFFFF',
+                border: 'none',
+                borderRadius: 14,
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: isFetchingBalance ? 'wait' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                boxShadow: isFetchingBalance ? 'none' : '0 4px 16px rgba(37, 99, 235, 0.3)',
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ animation: isFetchingBalance ? 'spin 0.8s linear infinite' : 'none' }}>
+                <path d="M23 4v6h-6M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+              </svg>
+              {isFetchingBalance ? 'Checking...' : 'Refresh Balance'}
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {/* ── All Rewards Modal Sheet ── */}
       {showRewardsModal && (
@@ -510,6 +734,20 @@ export function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* ── Add Money Modal ── */}
+      <AddMoneyModal
+        isOpen={showAddMoneyModal}
+        onClose={() => setShowAddMoneyModal(false)}
+        currentBalance={personalBalance}
+        onSuccess={(addedAmount) => {
+          setPersonalBalance(prev => prev + addedAmount);
+          const now = new Date();
+          setBalanceLastFetched(`Just now, ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+          setFetchSuccessAnim(true);
+          setTimeout(() => setFetchSuccessAnim(false), 2400);
+        }}
+      />
     </>
   );
 }
@@ -522,7 +760,7 @@ function GroupCard({ group, onClick }: { group: Group; onClick: () => void }) {
     'linear-gradient(135deg, #3B82F6, #1D4ED8)',
     'linear-gradient(135deg, #8B5CF6, #6D28D9)',
     'linear-gradient(135deg, #10B981, #047857)',
-    'linear-gradient(135deg, #F59E0B, #D97706)',
+    'linear-gradient(135deg, #6366F1, #4F46E5)',
   ];
 
   return (
@@ -537,9 +775,11 @@ function GroupCard({ group, onClick }: { group: Group; onClick: () => void }) {
         borderRadius: 22,
         padding: '16px 14px',
         cursor: 'pointer',
-        background: `linear-gradient(145deg, ${group.cardBg}85 0%, rgba(255, 255, 255, 0.96) 75%, ${group.cardBg}45 100%)`,
+        background: `linear-gradient(145deg, ${group.cardBg}99 0%, rgba(255, 255, 255, 0.88) 65%, ${group.cardBg}66 100%)`,
+        backdropFilter: 'blur(16px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
         border: `1.5px solid ${group.cardBorder}`,
-        boxShadow: `0 6px 20px ${group.themeColor}15, 0 1px 3px rgba(0, 0, 0, 0.02)`,
+        boxShadow: `0 8px 24px -2px ${group.themeColor}20, inset 0 1px 1.5px rgba(255, 255, 255, 0.95)`,
         position: 'relative',
         overflow: 'hidden',
         transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease',
@@ -715,12 +955,12 @@ function ActivityRow({ tx, isLast }: { tx: Transaction; isLast: boolean }) {
           {isPayment ? (
             <>
               <span style={{ fontWeight: 600 }}>{tx.personName} paid </span>
-              <span style={{ fontWeight: 800 }}>{formatINR(tx.amount)}</span>
+              <span style={{ fontWeight: 800, color: '#16A34A' }}>-{formatINR(tx.amount)}</span>
             </>
           ) : (
             <>
               <span style={{ fontWeight: 600 }}>You added </span>
-              <span style={{ fontWeight: 800 }}>{formatINR(tx.amount)}</span>
+              <span style={{ fontWeight: 800, color: '#DC2626' }}>+{formatINR(tx.amount)}</span>
             </>
           )}
         </div>
@@ -729,17 +969,17 @@ function ActivityRow({ tx, isLast }: { tx: Transaction; isLast: boolean }) {
         </div>
       </div>
 
-      {/* Enhanced Status Badge */}
-      {tx.status === 'success' ? (
+      {/* Enhanced Status Badge: Green for Debit / Red for Credit */}
+      {isPayment ? (
         <div
-          title="Completed"
+          title="Debited"
           style={{
             width: 34,
             height: 34,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, rgba(239, 246, 255, 0.95) 0%, rgba(219, 234, 254, 0.85) 100%)',
-            border: '1.5px solid rgba(147, 197, 253, 0.85)',
-            boxShadow: '0 2px 10px rgba(37, 99, 235, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.9)',
+            background: 'linear-gradient(135deg, rgba(240, 253, 244, 0.95) 0%, rgba(220, 252, 231, 0.85) 100%)',
+            border: '1.5px solid rgba(134, 239, 172, 0.85)',
+            boxShadow: '0 2px 10px rgba(22, 163, 74, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.9)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -749,17 +989,17 @@ function ActivityRow({ tx, isLast }: { tx: Transaction; isLast: boolean }) {
           }}
           onMouseEnter={e => {
             e.currentTarget.style.transform = 'scale(1.12)';
-            e.currentTarget.style.boxShadow = '0 4px 14px rgba(37, 99, 235, 0.28)';
+            e.currentTarget.style.boxShadow = '0 4px 14px rgba(22, 163, 74, 0.28)';
           }}
           onMouseLeave={e => {
             e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 2px 10px rgba(37, 99, 235, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.9)';
+            e.currentTarget.style.boxShadow = '0 2px 10px rgba(22, 163, 74, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.9)';
           }}
         >
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
             <path
               d="M16.5 5.5L8.2 13.8L3.5 9.1"
-              stroke="#1D4ED8"
+              stroke="#16A34A"
               strokeWidth="2.8"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -768,14 +1008,14 @@ function ActivityRow({ tx, isLast }: { tx: Transaction; isLast: boolean }) {
         </div>
       ) : (
         <div
-          title="Added"
+          title="Credited"
           style={{
             width: 34,
             height: 34,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, rgba(240, 249, 255, 0.95) 0%, rgba(224, 242, 254, 0.85) 100%)',
-            border: '1.5px solid rgba(186, 230, 253, 0.85)',
-            boxShadow: '0 2px 10px rgba(2, 132, 199, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.9)',
+            background: 'linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(254, 226, 226, 0.85) 100%)',
+            border: '1.5px solid rgba(254, 202, 202, 0.85)',
+            boxShadow: '0 2px 10px rgba(220, 38, 38, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.9)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -785,17 +1025,17 @@ function ActivityRow({ tx, isLast }: { tx: Transaction; isLast: boolean }) {
           }}
           onMouseEnter={e => {
             e.currentTarget.style.transform = 'scale(1.12)';
-            e.currentTarget.style.boxShadow = '0 4px 14px rgba(2, 132, 199, 0.28)';
+            e.currentTarget.style.boxShadow = '0 4px 14px rgba(220, 38, 38, 0.28)';
           }}
           onMouseLeave={e => {
             e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 2px 10px rgba(2, 132, 199, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.9)';
+            e.currentTarget.style.boxShadow = '0 2px 10px rgba(220, 38, 38, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.9)';
           }}
         >
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
             <path
               d="M10 4V16M4 10H16"
-              stroke="#0284C7"
+              stroke="#DC2626"
               strokeWidth="2.8"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -826,10 +1066,10 @@ const MOCK_REWARDS: RewardItem[] = [
   {
     id: 'r1',
     icon: 'star',
-    bg: '#FEF3C7',
-    color: '#D97706',
-    borderColor: '#FDE68A',
-    shadow: '0 4px 12px rgba(217, 119, 6, 0.20)',
+    bg: '#EFF6FF',
+    color: '#2563EB',
+    borderColor: '#BFDBFE',
+    shadow: '0 4px 12px rgba(37, 99, 235, 0.20)',
     title: 'Cashback Earned',
     sub: 'From group payments this month',
     value: '₹120',
@@ -865,9 +1105,9 @@ const MOCK_OTHER_REWARDS: RewardItem[] = [
   {
     id: 'r4',
     icon: 'gift',
-    bg: '#FCE7F3',
-    color: '#DB2777',
-    borderColor: '#FBCFE8',
+    bg: '#F5F3FF',
+    color: '#7C3AED',
+    borderColor: '#DDD6FE',
     title: 'Welcome Scratch Card',
     sub: 'Unlocked on your first bill split',
     value: '₹75',
@@ -876,9 +1116,9 @@ const MOCK_OTHER_REWARDS: RewardItem[] = [
   {
     id: 'r5',
     icon: 'party',
-    bg: '#FEF3C7',
-    color: '#D97706',
-    borderColor: '#FDE68A',
+    bg: '#F0FDF4',
+    color: '#16A34A',
+    borderColor: '#BBF7D0',
     title: 'Weekend Split Bonus',
     sub: 'Split dinner with 3+ friends on Saturday',
     value: '₹100',
@@ -888,8 +1128,8 @@ const MOCK_OTHER_REWARDS: RewardItem[] = [
   {
     id: 'r6',
     icon: 'ticket',
-    bg: '#E0F2FE',
-    color: '#0284C7',
+    bg: '#EFF6FF',
+    color: '#2563EB',
     borderColor: '#BAE6FD',
     title: 'Movie Night Voucher',
     sub: 'BookMyShow flat ₹150 off on group tickets',
@@ -899,9 +1139,9 @@ const MOCK_OTHER_REWARDS: RewardItem[] = [
   {
     id: 'r7',
     icon: 'shield',
-    bg: '#ECFDF5',
-    color: '#059669',
-    borderColor: '#A7F3D0',
+    bg: '#F0FDF4',
+    color: '#16A34A',
+    borderColor: '#BBF7D0',
     title: 'Top Settler of the Month',
     sub: 'Settled all group dues within 1 hour',
     value: '₹200',
@@ -917,8 +1157,8 @@ const MOCK_REFERRAL_STATS = [
 ];
 
 const MOCK_OFFERS = [
-  { id: 'o1', icon: 'offer', bg: '#FEE2E2', color: '#DC2626', brand: 'Zomato', title: '20% off on group orders', exp: 'Expires in 3 days', pill: 'HOT' },
-  { id: 'o2', icon: 'ticket', bg: '#E0F2FE', color: '#0284C7', brand: 'BookMyShow', title: 'Buy 2 get 1 free', exp: 'Expires in 7 days', pill: 'NEW' },
+  { id: 'o1', icon: 'offer', bg: '#F5F3FF', color: '#7C3AED', brand: 'Zomato', title: '20% off on group orders', exp: 'Expires in 3 days', pill: 'HOT' },
+  { id: 'o2', icon: 'ticket', bg: '#EFF6FF', color: '#2563EB', brand: 'BookMyShow', title: 'Buy 2 get 1 free', exp: 'Expires in 7 days', pill: 'NEW' },
   { id: 'o3', icon: 'gift', bg: '#F0FDF4', color: '#16A34A', brand: 'Amazon', title: '5% back on group buys', exp: 'Limited time', pill: 'TOP' },
 ];
 
@@ -1010,10 +1250,11 @@ function OfferCard({ offer }: { offer: typeof MOCK_OFFERS[0] }) {
 
 // ── Personal History (grouped accordion) ──
 function PersonalHistory({ payments }: { payments: PersonalPayment[] }) {
-  // Group by groupId
+  // Group by groupId (or 'personal_direct')
   const grouped = payments.reduce<Record<string, PersonalPayment[]>>((acc, p) => {
-    if (!acc[p.groupId]) acc[p.groupId] = [];
-    acc[p.groupId].push(p);
+    const key = p.groupId || 'personal_direct';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(p);
     return acc;
   }, {});
 
@@ -1036,11 +1277,13 @@ function PersonalHistory({ payments }: { payments: PersonalPayment[] }) {
           <div
             key={gid}
             style={{
-              background: '#FFFFFF',
-              borderRadius: 20,
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(16px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+              borderRadius: 22,
               overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02)',
-              border: '1.5px solid rgba(226, 232, 240, 0.85)',
+              boxShadow: '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 1.5px rgba(255, 255, 255, 0.95)',
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
               transition: 'box-shadow 0.2s ease',
             }}
           >
@@ -1053,31 +1296,33 @@ function PersonalHistory({ payments }: { payments: PersonalPayment[] }) {
                 alignItems: 'center',
                 gap: 12,
                 padding: '14px 16px',
-                background: '#E0ECFF',
+                background: `linear-gradient(135deg, ${first.groupCardBg || '#EFF6FF'}D8 0%, rgba(255, 255, 255, 0.90) 100%)`,
+                backdropFilter: 'blur(14px)',
+                WebkitBackdropFilter: 'blur(14px)',
                 border: 'none',
                 cursor: 'pointer',
                 textAlign: 'left',
                 transition: 'background 0.15s ease',
               }}
             >
-              {/* Blue circular badge with white icon */}
+              {/* Group circular badge with group theme color */}
               <div style={{
                 width: 44,
                 height: 44,
                 borderRadius: '50%',
-                background: '#2563EB',
+                background: first.groupTheme || '#2563EB',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.28)',
+                boxShadow: `0 4px 12px ${first.groupTheme ? first.groupTheme + '40' : 'rgba(37, 99, 235, 0.28)'}`,
               }}>
                 {first.groupIcon === 'flatmates' ? (
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
                     <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
                   </svg>
                 ) : (
-                  <EmojiBadge name={first.groupIcon} size={28} shape="circle" bg="transparent" color="#FFFFFF" />
+                  <EmojiBadge name={first.groupIcon || 'wallet'} size={28} shape="circle" bg="transparent" color="#FFFFFF" />
                 )}
               </div>
 
@@ -1097,11 +1342,11 @@ function PersonalHistory({ payments }: { payments: PersonalPayment[] }) {
                   fontWeight: 500,
                   marginTop: 3,
                 }}>
-                  {items.length} txn · Paid {formatINR(totalPaid)} · Added {formatINR(totalAdded)}
+                  {items.length} txn · Debited {formatINR(totalPaid)} · Credited {formatINR(totalAdded)}
                 </div>
               </div>
 
-              {/* Blue Chevron (points UP when open, DOWN when closed) */}
+              {/* Group Theme Chevron */}
               <svg
                 width="18"
                 height="18"
@@ -1115,7 +1360,7 @@ function PersonalHistory({ payments }: { payments: PersonalPayment[] }) {
               >
                 <path
                   d="M6 9l6 6 6-6"
-                  stroke="#1D4ED8"
+                  stroke={first.groupTheme || '#1D4ED8'}
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1125,7 +1370,7 @@ function PersonalHistory({ payments }: { payments: PersonalPayment[] }) {
 
             {/* Transactions List */}
             {isOpen && (
-              <div style={{ background: '#FFFFFF' }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.82)' }}>
                 {items.map((p, idx) => (
                   <PersonalPayRow key={p.id} payment={p} isLast={idx === items.length - 1} />
                 ))}
@@ -1140,18 +1385,17 @@ function PersonalHistory({ payments }: { payments: PersonalPayment[] }) {
 
 // ── Single personal payment row ──
 function PersonalPayRow({ payment: p, isLast }: { payment: PersonalPayment; isLast: boolean }) {
-  const isPaid = p.dir === 'paid';
+  const isDebit = p.dir === 'paid';
   const isAdded = p.dir === 'added';
 
-  const amountColor = isPaid ? '#DC2626' : (isAdded ? '#1D4ED8' : '#16A34A');
-  const amountPrefix = isPaid ? '-₹' : '+₹';
+  // Green for money debit, Red for credit
+  const amountColor = isDebit ? '#16A34A' : '#DC2626';
+  const amountPrefix = isDebit ? '-₹' : '+₹';
   const formattedAmount = formatINR(p.amount).replace('₹', '');
 
-  const pillStyle = isPaid
-    ? { bg: '#FEE2E2', color: '#DC2626', label: 'Paid' }
-    : isAdded
-    ? { bg: '#DBEAFE', color: '#1D4ED8', label: 'Added' }
-    : { bg: '#DCFCE7', color: '#16A34A', label: 'Received' };
+  const pillStyle = isDebit
+    ? { bg: '#DCFCE7', color: '#16A34A', label: 'Debited' }
+    : { bg: '#FEE2E2', color: '#DC2626', label: isAdded ? 'Credited' : 'Received' };
 
   return (
     <div
@@ -1160,8 +1404,10 @@ function PersonalPayRow({ payment: p, isLast }: { payment: PersonalPayment; isLa
         alignItems: 'flex-start',
         justifyContent: 'space-between',
         padding: '14px 18px',
-        borderBottom: isLast ? 'none' : '1px solid #F1F5F9',
-        background: '#FFFFFF',
+        borderBottom: isLast ? 'none' : '1px solid rgba(241, 245, 249, 0.85)',
+        background: 'rgba(255, 255, 255, 0.72)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         transition: 'background 0.15s ease',
       }}
       onMouseEnter={e => (e.currentTarget.style.background = 'rgba(248, 250, 252, 0.75)')}

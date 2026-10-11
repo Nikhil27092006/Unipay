@@ -14,9 +14,9 @@ const MONOGRAM_COLORS = [
   'linear-gradient(135deg, #3B82F6, #1D4ED8)',
   'linear-gradient(135deg, #8B5CF6, #6D28D9)',
   'linear-gradient(135deg, #10B981, #047857)',
-  'linear-gradient(135deg, #F59E0B, #D97706)',
-  'linear-gradient(135deg, #EC4899, #BE185D)',
-  'linear-gradient(135deg, #06B6D4, #0E7490)',
+  'linear-gradient(135deg, #6366F1, #4F46E5)',
+  'linear-gradient(135deg, #2563EB, #1E40AF)',
+  'linear-gradient(135deg, #059669, #047857)',
 ];
 
 export function Groups() {
@@ -42,13 +42,13 @@ export function Groups() {
 
         {/* ── Simplified & Clean Vault Overview Header ── */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderRadius: 20,
+          background: 'linear-gradient(135deg, rgba(239, 246, 255, 0.85) 0%, rgba(255, 255, 255, 0.90) 100%)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderRadius: 22,
           padding: '18px 20px',
           border: '1.5px solid rgba(255, 255, 255, 0.95)',
-          boxShadow: '0 4px 20px rgba(15, 23, 42, 0.05)',
+          boxShadow: '0 8px 30px rgba(37, 99, 235, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.95)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -99,16 +99,17 @@ export function Groups() {
                 onClick={() => setFilter(cat.id)}
                 style={{
                   padding: '7px 14px',
-                  borderRadius: 20,
+                  borderRadius: 8,
                   fontSize: 12,
                   fontWeight: active ? 700 : 600,
-                  border: active ? '1.5px solid #2563EB' : '1px solid rgba(226, 232, 240, 0.8)',
-                  background: active ? '#2563EB' : 'rgba(255, 255, 255, 0.8)',
+                  border: active ? '1.5px solid #2563EB' : '1px solid rgba(255, 255, 255, 0.9)',
+                  background: active ? '#2563EB' : 'rgba(255, 255, 255, 0.78)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
                   color: active ? '#FFFFFF' : '#64748B',
                   cursor: 'pointer',
                   flexShrink: 0,
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: active ? '0 2px 10px rgba(37, 99, 235, 0.25)' : '0 1px 3px rgba(0, 0, 0, 0.03)',
+                  boxShadow: active ? '0 4px 12px rgba(37, 99, 235, 0.25)' : '0 1px 3px rgba(0,0,0,0.02)',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -227,10 +228,12 @@ function EnhancedGroupCard({ group, onClick }: { group: Group; onClick: () => vo
       onClick={onClick}
       style={{
         position: 'relative',
-        background: `linear-gradient(145deg, ${group.cardBg}85 0%, rgba(255, 255, 255, 0.96) 75%, ${group.cardBg}45 100%)`,
+        background: `linear-gradient(145deg, ${group.cardBg}99 0%, rgba(255, 255, 255, 0.88) 60%, ${group.cardBg}66 100%)`,
+        backdropFilter: 'blur(16px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
         borderRadius: 22,
         border: `1.5px solid ${group.cardBorder}`,
-        boxShadow: `0 6px 22px ${group.themeColor}15, 0 1px 3px rgba(0, 0, 0, 0.02)`,
+        boxShadow: `0 8px 24px -2px ${group.themeColor}20, inset 0 1px 1.5px rgba(255, 255, 255, 0.95)`,
         cursor: 'pointer',
         overflow: 'hidden',
         transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease',
@@ -351,10 +354,10 @@ function EnhancedGroupCard({ group, onClick }: { group: Group; onClick: () => vo
 
           <span style={{
             fontSize: 11, fontWeight: 700,
-            color: isHealthy ? '#059669' : '#D97706',
-            background: isHealthy ? '#ECFDF5' : '#FFFBEB',
+            color: isHealthy ? '#059669' : '#7C3AED',
+            background: isHealthy ? '#ECFDF5' : '#F5F3FF',
             padding: '2.5px 8px', borderRadius: 8,
-            border: `1px solid ${isHealthy ? '#A7F3D0' : '#FDE68A'}`,
+            border: `1px solid ${isHealthy ? '#A7F3D0' : '#DDD6FE'}`,
           }}>
             {formatINR(remaining)} left
           </span>

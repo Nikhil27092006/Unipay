@@ -70,40 +70,40 @@ export interface EmojiBadgeProps {
 }
 
 const DEFAULT_CONFIGS: Record<string, { bg: string; color: string }> = {
-  wave: { bg: 'transparent', color: '#F59E0B' },
+  wave: { bg: 'transparent', color: '#2563EB' },
   flatmates: { bg: '#2563EB', color: '#FFFFFF' },
   house: { bg: '#2563EB', color: '#FFFFFF' },
   home: { bg: '#2563EB', color: '#FFFFFF' },
   ganpati: { bg: '#7C3AED', color: '#FFFFFF' },
   festival: { bg: '#7C3AED', color: '#FFFFFF' },
   diya: { bg: '#7C3AED', color: '#FFFFFF' },
-  weekend: { bg: '#0D9488', color: '#FFFFFF' },
-  camp: { bg: '#0D9488', color: '#FFFFFF' },
-  friends: { bg: '#0D9488', color: '#FFFFFF' },
-  trip: { bg: '#0EA5E9', color: '#FFFFFF' },
-  plane: { bg: '#0EA5E9', color: '#FFFFFF' },
-  vacation: { bg: '#0EA5E9', color: '#FFFFFF' },
+  weekend: { bg: '#16A34A', color: '#FFFFFF' },
+  camp: { bg: '#16A34A', color: '#FFFFFF' },
+  friends: { bg: '#16A34A', color: '#FFFFFF' },
+  trip: { bg: '#2563EB', color: '#FFFFFF' },
+  plane: { bg: '#2563EB', color: '#FFFFFF' },
+  vacation: { bg: '#2563EB', color: '#FFFFFF' },
   groceries: { bg: '#16A34A', color: '#FFFFFF' },
   cart: { bg: '#16A34A', color: '#FFFFFF' },
-  dining: { bg: '#F59E0B', color: '#FFFFFF' },
-  food: { bg: '#F59E0B', color: '#FFFFFF' },
-  lunch: { bg: '#F59E0B', color: '#FFFFFF' },
-  bento: { bg: '#F59E0B', color: '#FFFFFF' },
-  party: { bg: '#9333EA', color: '#FFFFFF' },
-  events: { bg: '#9333EA', color: '#FFFFFF' },
-  celebrate: { bg: '#9333EA', color: '#FFFFFF' },
-  bills: { bg: '#4B5563', color: '#FFFFFF' },
-  lightning: { bg: '#4B5563', color: '#FFFFFF' },
-  shield: { bg: '#10B981', color: '#FFFFFF' },
-  kyc: { bg: '#10B981', color: '#FFFFFF' },
-  user: { bg: '#3B82F6', color: '#FFFFFF' },
-  person: { bg: '#3B82F6', color: '#FFFFFF' },
-  profile: { bg: '#3B82F6', color: '#FFFFFF' },
-  card: { bg: '#6366F1', color: '#FFFFFF' },
-  upi: { bg: '#6366F1', color: '#FFFFFF' },
-  wallet: { bg: '#6366F1', color: '#FFFFFF' },
-  bell: { bg: '#F59E0B', color: '#FFFFFF' },
-  notif: { bg: '#F59E0B', color: '#FFFFFF' },
+  dining: { bg: '#7C3AED', color: '#FFFFFF' },
+  food: { bg: '#7C3AED', color: '#FFFFFF' },
+  lunch: { bg: '#7C3AED', color: '#FFFFFF' },
+  bento: { bg: '#7C3AED', color: '#FFFFFF' },
+  party: { bg: '#7C3AED', color: '#FFFFFF' },
+  events: { bg: '#7C3AED', color: '#FFFFFF' },
+  celebrate: { bg: '#7C3AED', color: '#FFFFFF' },
+  bills: { bg: '#2563EB', color: '#FFFFFF' },
+  lightning: { bg: '#7C3AED', color: '#FFFFFF' },
+  shield: { bg: '#16A34A', color: '#FFFFFF' },
+  kyc: { bg: '#16A34A', color: '#FFFFFF' },
+  user: { bg: '#2563EB', color: '#FFFFFF' },
+  person: { bg: '#2563EB', color: '#FFFFFF' },
+  profile: { bg: '#2563EB', color: '#FFFFFF' },
+  card: { bg: '#7C3AED', color: '#FFFFFF' },
+  upi: { bg: '#7C3AED', color: '#FFFFFF' },
+  wallet: { bg: '#7C3AED', color: '#FFFFFF' },
+  bell: { bg: '#2563EB', color: '#FFFFFF' },
+  notif: { bg: '#2563EB', color: '#FFFFFF' },
   lock: { bg: '#EF4444', color: '#FFFFFF' },
   security: { bg: '#EF4444', color: '#FFFFFF' },
   help: { bg: '#6B7280', color: '#FFFFFF' },
@@ -112,20 +112,20 @@ const DEFAULT_CONFIGS: Record<string, { bg: string; color: string }> = {
   success: { bg: '#16A34A', color: '#FFFFFF' },
   plus: { bg: '#2563EB', color: '#FFFFFF' },
   add: { bg: '#2563EB', color: '#FFFFFF' },
-  info: { bg: '#3B82F6', color: '#FFFFFF' },
-  rewards: { bg: '#FEF3C7', color: '#D97706' },
-  trophy: { bg: '#FEF3C7', color: '#D97706' },
-  offers: { bg: '#FCE7F3', color: '#DB2777' },
-  tag: { bg: '#FCE7F3', color: '#DB2777' },
-  discount: { bg: '#FCE7F3', color: '#DB2777' },
-  referrals: { bg: '#DBEAFE', color: '#2563EB' },
-  refer: { bg: '#DBEAFE', color: '#2563EB' },
-  referral: { bg: '#DBEAFE', color: '#2563EB' },
-  gift: { bg: '#DBEAFE', color: '#2563EB' },
-  star: { bg: '#FEF3C7', color: '#D97706' },
+  info: { bg: '#2563EB', color: '#FFFFFF' },
+  rewards: { bg: '#EFF6FF', color: '#2563EB' },
+  trophy: { bg: '#EFF6FF', color: '#2563EB' },
+  offers: { bg: '#F5F3FF', color: '#7C3AED' },
+  tag: { bg: '#F5F3FF', color: '#7C3AED' },
+  discount: { bg: '#F5F3FF', color: '#7C3AED' },
+  referrals: { bg: '#EFF6FF', color: '#2563EB' },
+  refer: { bg: '#EFF6FF', color: '#2563EB' },
+  referral: { bg: '#EFF6FF', color: '#2563EB' },
+  gift: { bg: '#EFF6FF', color: '#2563EB' },
+  star: { bg: '#EFF6FF', color: '#2563EB' },
   coin: { bg: '#F5F3FF', color: '#7C3AED' },
-  offer: { bg: '#FEE2E2', color: '#DC2626' },
-  ticket: { bg: '#E0F2FE', color: '#0284C7' },
+  offer: { bg: '#F5F3FF', color: '#7C3AED' },
+  ticket: { bg: '#EFF6FF', color: '#2563EB' },
 };
 
 function normalizeName(raw: string): string {
@@ -239,32 +239,32 @@ export function EmojiBadge({
           {/* Wave arc accents */}
           <path
             d="M26 8c2.2 2.2 3.2 5.5 2.6 8.5"
-            stroke="#F59E0B"
+            stroke="#2563EB"
             strokeWidth="2.2"
             strokeLinecap="round"
           />
           <path
             d="M23 11c1.3 1.3 1.9 3.2 1.6 5"
-            stroke="#FBBF24"
+            stroke="#60A5FA"
             strokeWidth="1.8"
             strokeLinecap="round"
           />
-          {/* Hand Palm & Fingers with warm gradient */}
+          {/* Hand Palm & Fingers */}
           <defs>
             <linearGradient id="waveGrad" x1="6" y1="4" x2="26" y2="28" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#FDE047" />
-              <stop offset="50%" stopColor="#FBBF24" />
-              <stop offset="100%" stopColor="#F59E0B" />
+              <stop offset="0%" stopColor="#93C5FD" />
+              <stop offset="50%" stopColor="#60A5FA" />
+              <stop offset="100%" stopColor="#2563EB" />
             </linearGradient>
             <filter id="waveShadow" x="-10%" y="-10%" width="120%" height="120%">
-              <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#D97706" floodOpacity="0.3" />
+              <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#1D4ED8" floodOpacity="0.25" />
             </filter>
           </defs>
           <g filter="url(#waveShadow)">
             <path
               d="M17.5 13V6.5a1.8 1.8 0 00-3.6 0V13M13.9 13V4.8a1.8 1.8 0 00-3.6 0V14M10.3 14V6.5a1.8 1.8 0 00-3.6 0V17c0 5 3.8 9.5 8.8 9.5s8.8-4.5 8.8-9.5v-3.5a1.8 1.8 0 00-3.6 0V15M20.7 13.5a1.8 1.8 0 00-3.2-.5"
               fill="url(#waveGrad)"
-              stroke="#D97706"
+              stroke="#1D4ED8"
               strokeWidth="1.2"
               strokeLinecap="round"
               strokeLinejoin="round"

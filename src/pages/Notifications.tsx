@@ -4,7 +4,7 @@ import { MOCK_NOTIFICATIONS, type Notification } from '../data/mockData';
 import { EmojiBadge } from '../components/EmojiBadge';
 
 const iconMap: Record<Notification['type'], { icon: string; bg: string; color: string }> = {
-  approval: { icon: 'lightning', bg: '#FEF3C7', color: '#D97706' },
+  approval: { icon: 'lightning', bg: '#EDE9FE', color: '#7C3AED' },
   payment: { icon: 'check', bg: '#DCFCE7', color: '#16A34A' },
   contribution: { icon: 'plus', bg: '#DBEAFE', color: '#2563EB' },
   info: { icon: 'info', bg: '#F3F4F6', color: '#6B7280' },

@@ -5,11 +5,11 @@ import { EmojiBadge } from '../components/EmojiBadge';
 
 const CATEGORIES = [
   { id: 'flatmates', label: 'Flatmates', icon: 'house', color: '#2563EB' },
-  { id: 'trip', label: 'Trip / Vacation', icon: 'trip', color: '#0EA5E9' },
+  { id: 'trip', label: 'Trip / Vacation', icon: 'trip', color: '#2563EB' },
   { id: 'groceries', label: 'Groceries', icon: 'groceries', color: '#16A34A' },
-  { id: 'dining', label: 'Dining', icon: 'dining', color: '#F59E0B' },
-  { id: 'events', label: 'Events / Party', icon: 'party', color: '#9333EA' },
-  { id: 'bills', label: 'Bills', icon: 'bills', color: '#4B5563' },
+  { id: 'dining', label: 'Dining', icon: 'dining', color: '#7C3AED' },
+  { id: 'events', label: 'Events / Party', icon: 'party', color: '#7C3AED' },
+  { id: 'bills', label: 'Bills', icon: 'bills', color: '#2563EB' },
 ];
 
 export function CreateGroup() {

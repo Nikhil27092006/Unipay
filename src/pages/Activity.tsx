@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatINR } from '../data/mockData';
+import {
+  formatINR, CURRENT_USER, MOCK_PERSONAL_PAYMENTS,
+  type PersonalPayment
+} from '../data/mockData';
 import { EmojiBadge } from '../components/EmojiBadge';
 
 export interface ActivityTx {
@@ -196,7 +199,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
     groupName: 'Weekend Group',
     groupId: 'g3',
     groupIcon: 'weekend',
-    groupColor: '#0D9488',
+    groupColor: '#16A34A',
     category: 'Transport',
     member: 'Nikhil',
     amount: -1150,
@@ -211,7 +214,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
     groupName: 'Weekend Group',
     groupId: 'g3',
     groupIcon: 'weekend',
-    groupColor: '#0D9488',
+    groupColor: '#16A34A',
     category: 'Stay',
     member: 'Priya',
     amount: -6800,
@@ -226,7 +229,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
     groupName: 'Weekend Group',
     groupId: 'g3',
     groupIcon: 'weekend',
-    groupColor: '#0D9488',
+    groupColor: '#16A34A',
     category: 'Contribution',
     member: 'Mrunali',
     amount: 3500,
@@ -241,7 +244,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
     groupName: 'Weekend Group',
     groupId: 'g3',
     groupIcon: 'weekend',
-    groupColor: '#0D9488',
+    groupColor: '#16A34A',
     category: 'Refund',
     member: 'Goa Adventures',
     amount: 800,
@@ -263,6 +266,33 @@ export function Activity() {
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const [showFilterModal, setShowFilterModal] = useState(false);
 
+  // Top-level History Source Switcher: Group Payments vs Personal UPI
+  const [historySource, setHistorySource] = useState<'groups' | 'personal'>('groups');
+  const [personalTab, setPersonalTab] = useState<'All' | 'Debited' | 'Credited' | 'Top-ups'>('All');
+  const [selectedPersonalTx, setSelectedPersonalTx] = useState<PersonalPayment | null>(null);
+
+  // Personal live balance in activity
+  const [personalBalance, setPersonalBalance] = useState(CURRENT_USER.personalBalance);
+  const [isFetchingBal, setIsFetchingBal] = useState(false);
+  const [lastBalFetch, setLastBalFetch] = useState<string | null>('1:05 PM');
+  const [balFetchSuccess, setBalFetchSuccess] = useState(false);
+
+  const handleFetchBal = () => {
+    setIsFetchingBal(true);
+    setTimeout(() => {
+      setIsFetchingBal(false);
+      setPersonalBalance(3250);
+      const now = new Date();
+      setLastBalFetch(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setBalFetchSuccess(true);
+      setTimeout(() => setBalFetchSuccess(false), 2200);
+    }, 750);
+  };
+
+  const handleOpenPaymentHub = () => {
+    window.dispatchEvent(new CustomEvent('cowallet-open-payment-modal'));
+  };
+
   // Group list for tabs
   const groupNames = ['All', 'Flatmates', 'Ganpati Group', 'Weekend Group'];
 
@@ -270,6 +300,25 @@ export function Activity() {
   const toggleGroupCollapse = (grp: string) => {
     setCollapsedGroups(prev => ({ ...prev, [grp]: !prev[grp] }));
   };
+
+  // Filtered personal transactions
+  const filteredPersonalPayments = useMemo(() => {
+    return MOCK_PERSONAL_PAYMENTS.filter(tx => {
+      if (personalTab === 'Debited' && tx.dir !== 'paid') return false;
+      if (personalTab === 'Credited' && tx.dir !== 'received') return false;
+      if (personalTab === 'Top-ups' && tx.dir !== 'added') return false;
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesMerchant = tx.merchant.toLowerCase().includes(q);
+        const matchesNote = tx.note.toLowerCase().includes(q);
+        const matchesCategory = (tx.category || '').toLowerCase().includes(q);
+        const matchesRef = (tx.upiRef || '').toLowerCase().includes(q);
+        if (!matchesMerchant && !matchesNote && !matchesCategory && !matchesRef) return false;
+      }
+      return true;
+    });
+  }, [personalTab, searchQuery]);
 
   // Filtered transactions
   const filteredTxs = useMemo(() => {
@@ -360,40 +409,140 @@ export function Activity() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 18,
+        marginBottom: 16,
       }}>
-        <h1 style={{
-          fontSize: 26,
-          fontWeight: 800,
-          color: '#111827',
-          margin: 0,
-          letterSpacing: '-0.02em',
-        }}>
-          Activity
-        </h1>
+        <div>
+          <h1 style={{
+            fontSize: 26,
+            fontWeight: 800,
+            color: '#111827',
+            margin: 0,
+            letterSpacing: '-0.02em',
+          }}>
+            Activity
+          </h1>
+          <p style={{ fontSize: 12, color: '#6B7280', margin: '3px 0 0', fontWeight: 500 }}>
+            Track group expenses & personal UPI payments
+          </p>
+        </div>
 
+        {historySource === 'groups' ? (
+          <button
+            onClick={() => setShowFilterModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: 12,
+              padding: '7px 14px',
+              color: '#111827',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"
+                stroke="#16A34A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Filters
+          </button>
+        ) : (
+          <button
+            onClick={handleOpenPaymentHub}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+              border: 'none',
+              borderRadius: 12,
+              padding: '7px 14px',
+              color: '#FFFFFF',
+              fontSize: 12.5,
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 3px 10px rgba(37, 99, 235, 0.28)',
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <path d="M22 2L15 22L11 13L2 9L22 2Z" fill="white" stroke="white" strokeWidth="1"/>
+            </svg>
+            Pay UPI
+          </button>
+        )}
+      </div>
+
+      {/* ── Top Level Selector: Group Payment History vs Personal Payment History ── */}
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.88)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1.5px solid rgba(255, 255, 255, 0.95)',
+        borderRadius: 16,
+        padding: 4,
+        display: 'flex',
+        gap: 6,
+        marginBottom: 16,
+        boxShadow: '0 4px 20px rgba(15, 23, 42, 0.05)',
+      }}>
         <button
-          onClick={() => setShowFilterModal(true)}
+          onClick={() => setHistorySource('groups')}
           style={{
+            flex: 1,
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
-            background: '#FFFFFF',
-            border: '1px solid #E5E7EB',
+            justifyContent: 'center',
+            gap: 7,
+            padding: '10px 14px',
             borderRadius: 12,
-            padding: '7px 14px',
-            color: '#111827',
+            border: 'none',
+            background: historySource === 'groups' ? 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' : 'transparent',
+            color: historySource === 'groups' ? '#FFFFFF' : '#4B5563',
             fontSize: 13,
-            fontWeight: 600,
+            fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            boxShadow: historySource === 'groups' ? '0 4px 14px rgba(37, 99, 235, 0.28)' : 'none',
+            transition: 'all 0.18s ease',
           }}
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-            <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"
-              stroke="#16A34A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
           </svg>
-          Filters
+          <span>Group Payments</span>
+        </button>
+
+        <button
+          onClick={() => setHistorySource('personal')}
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 7,
+            padding: '10px 14px',
+            borderRadius: 12,
+            border: 'none',
+            background: historySource === 'personal' ? 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)' : 'transparent',
+            color: historySource === 'personal' ? '#FFFFFF' : '#4B5563',
+            fontSize: 13,
+            fontWeight: 800,
+            cursor: 'pointer',
+            boxShadow: historySource === 'personal' ? '0 4px 14px rgba(124, 58, 237, 0.28)' : 'none',
+            transition: 'all 0.18s ease',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <rect x="2" y="5" width="20" height="14" rx="3"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+            <circle cx="7" cy="15" r="1.5" fill="currentColor"/>
+          </svg>
+          <span>Personal UPI</span>
         </button>
       </div>
 
@@ -437,7 +586,10 @@ export function Activity() {
         )}
       </div>
 
-      {/* ── Type Filter Tabs Pill Track (Clean Light Theme) ── */}
+      {/* ── Main View: Group Payments vs Personal UPI ── */}
+      {historySource === 'groups' ? (
+        <>
+          {/* ── Type Filter Tabs Pill Track (Clean Light Theme) ── */}
       <div style={{
         background: '#EDE8E1',
         border: '1px solid #E5E7EB',
@@ -560,20 +712,24 @@ export function Activity() {
 
             return (
               <div key={grpName} style={{
-                background: '#FFFFFF',
-                borderRadius: 20,
-                border: '1px solid #ECE7E1',
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(16px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                borderRadius: 22,
+                border: '1.5px solid rgba(255, 255, 255, 0.95)',
                 overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                boxShadow: '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 1.5px rgba(255, 255, 255, 0.95)',
               }}>
                 {/* ── Group Section Header Card (Tap to collapse) ── */}
                 <button
                   onClick={() => toggleGroupCollapse(grpName)}
                   style={{
                     width: '100%',
-                    background: '#FFFFFF',
+                    background: `linear-gradient(135deg, ${grpData.groupColor}12 0%, rgba(255, 255, 255, 0.90) 100%)`,
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
                     border: 'none',
-                    borderBottom: isCollapsed ? 'none' : '1px solid #F3F4F6',
+                    borderBottom: isCollapsed ? 'none' : '1px solid rgba(243, 244, 246, 0.8)',
                     padding: '14px 16px',
                     display: 'flex',
                     alignItems: 'center',
@@ -723,6 +879,323 @@ export function Activity() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+        </>
+      ) : (
+        /* ══════════════════════════════════════════════════════
+            MODE B: PERSONAL UPI HISTORY & FEATURES
+            ══════════════════════════════════════════════════════ */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Personal UPI Summary Row */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 10,
+          }}>
+            <div style={{
+              background: 'rgba(240, 253, 244, 0.9)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(134, 239, 172, 0.85)',
+              borderRadius: 16,
+              padding: '12px 14px',
+            }}>
+              <div style={{ fontSize: 11, color: '#166534', fontWeight: 600 }}>Total Debited (Spent)</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#16A34A', marginTop: 3 }}>-₹4,675.00</div>
+            </div>
+            <div style={{
+              background: 'rgba(254, 242, 242, 0.9)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(254, 202, 202, 0.85)',
+              borderRadius: 16,
+              padding: '12px 14px',
+            }}>
+              <div style={{ fontSize: 11, color: '#991B1B', fontWeight: 600 }}>Total Credited (Inflow)</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#DC2626', marginTop: 3 }}>+₹16,300.00</div>
+            </div>
+          </div>
+
+          {/* Personal Filter Tabs */}
+          <div style={{
+            background: '#EDE8E1',
+            border: '1px solid #E5E7EB',
+            borderRadius: 24,
+            padding: 4,
+            display: 'flex',
+            alignItems: 'center',
+          }}>
+            {(['All', 'Debited', 'Credited', 'Top-ups'] as const).map(tab => {
+              const isActive = personalTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setPersonalTab(tab)}
+                  style={{
+                    flex: 1,
+                    padding: '8px 4px',
+                    borderRadius: 20,
+                    background: isActive ? '#7C3AED' : 'transparent',
+                    color: isActive ? '#FFFFFF' : '#6B7280',
+                    border: 'none',
+                    fontSize: 12.5,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    boxShadow: isActive ? '0 2px 6px rgba(124, 58, 237, 0.3)' : 'none',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Personal Payment History List */}
+          {filteredPersonalPayments.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '50px 20px', color: '#6B7280' }}>
+              <div style={{ fontSize: 32, marginBottom: 8, color: '#D1D5DB' }}>◌</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>No personal transactions found</div>
+              <div style={{ fontSize: 12, marginTop: 4 }}>Try clearing the search query or selecting a different filter.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {filteredPersonalPayments.map(tx => {
+                const isDebit = tx.dir === 'paid';
+                return (
+                  <div
+                    key={tx.id}
+                    onClick={() => setSelectedPersonalTx(tx)}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.85)',
+                      backdropFilter: 'blur(16px)',
+                      WebkitBackdropFilter: 'blur(16px)',
+                      border: '1.5px solid rgba(255, 255, 255, 0.95)',
+                      borderRadius: 16,
+                      padding: '13px 15px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                      transition: 'transform 0.15s ease, background 0.15s ease',
+                    }}
+                    onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.985)')}
+                    onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+                  >
+                    {/* Left Icon: Green for Debit / Red for Credit */}
+                    <div style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 12,
+                      background: isDebit ? '#DCFCE7' : '#FEE2E2',
+                      border: isDebit ? '1px solid #86EFAC' : '1px solid #FECACA',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      {isDebit ? (
+                        /* Debit: Outflow ↗ in Green */
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path d="M7 17L17 7M17 7H7M17 7V17" stroke="#16A34A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      ) : (
+                        /* Credit: Inflow ↙ in Red */
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path d="M17 7L7 17M7 17H17M7 17V7" stroke="#DC2626" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+
+                    {/* Transaction Details */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {tx.merchant}
+                      </div>
+                      <div style={{ fontSize: 11.5, color: '#6B7280', marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>{tx.note}</span>
+                        <span>•</span>
+                        <span style={{ color: '#7C3AED', fontWeight: 600 }}>{tx.paymentMode || 'UPI'}</span>
+                      </div>
+                      <div style={{ fontSize: 10.5, color: '#9CA3AF', marginTop: 2 }}>
+                        {tx.date} · {tx.account || 'HDFC Bank ••4921'}
+                      </div>
+                    </div>
+
+                    {/* Amount & Status: Debit in Green / Credit in Red */}
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{
+                        fontSize: 15,
+                        fontWeight: 800,
+                        color: isDebit ? '#16A34A' : '#DC2626',
+                        letterSpacing: '-0.01em',
+                      }}>
+                        {isDebit ? '-' : '+'}{formatINR(tx.amount)}
+                      </div>
+                      <div style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: '#16A34A',
+                        background: '#DCFCE7',
+                        padding: '2px 6px',
+                        borderRadius: 6,
+                        display: 'inline-block',
+                        marginTop: 3,
+                      }}>
+                        SUCCESS
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Personal Transaction Receipt Modal Sheet ── */}
+      {selectedPersonalTx && (
+        <div
+          onClick={() => setSelectedPersonalTx(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 80,
+            background: 'rgba(15, 23, 42, 0.45)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            padding: '0 0 max(10px, env(safe-area-inset-bottom, 10px)) 0',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: 390,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(28px) saturate(190%)',
+              WebkitBackdropFilter: 'blur(28px) saturate(190%)',
+              borderRadius: 24,
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
+              padding: '20px 20px 28px',
+              boxShadow: '0 24px 60px rgba(15, 23, 42, 0.22)',
+            }}
+          >
+            <div style={{ width: 36, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
+
+            <div style={{ textAlign: 'center', marginBottom: 18 }}>
+              <div style={{
+                width: 52,
+                height: 52,
+                borderRadius: '50%',
+                background: selectedPersonalTx.dir === 'paid' ? '#DCFCE7' : '#FEE2E2',
+                border: selectedPersonalTx.dir === 'paid' ? '2px solid #86EFAC' : '2px solid #FECACA',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 10px',
+              }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 6L9 17L4 12" stroke={selectedPersonalTx.dir === 'paid' ? '#16A34A' : '#DC2626'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: selectedPersonalTx.dir === 'paid' ? '#16A34A' : '#DC2626' }}>
+                {selectedPersonalTx.dir === 'paid' ? '-' : '+'}{formatINR(selectedPersonalTx.amount)}
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginTop: 4 }}>
+                {selectedPersonalTx.merchant}
+              </div>
+              <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>
+                {selectedPersonalTx.note}
+              </div>
+            </div>
+
+            {/* Details Breakdown */}
+            <div style={{
+              background: '#F8FAFC',
+              borderRadius: 14,
+              border: '1px solid #E2E8F0',
+              padding: '12px 14px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+              fontSize: 12,
+              marginBottom: 18,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#6B7280' }}>Account</span>
+                <span style={{ fontWeight: 700, color: '#111827' }}>{selectedPersonalTx.account || 'HDFC Bank •••• 4921'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#6B7280' }}>UPI Ref / UTR</span>
+                <span style={{ fontWeight: 700, color: '#111827' }}>UPI/{selectedPersonalTx.upiRef || '4291829104'}/NPCI</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#6B7280' }}>Payment Mode</span>
+                <span style={{ fontWeight: 700, color: '#7C3AED' }}>{selectedPersonalTx.paymentMode || 'UPI ID'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#6B7280' }}>Timestamp</span>
+                <span style={{ fontWeight: 700, color: '#111827' }}>{selectedPersonalTx.date}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#6B7280' }}>Status</span>
+                <span style={{ fontWeight: 800, color: '#16A34A' }}>Successful (NPCI Verified)</span>
+              </div>
+            </div>
+
+            {/* Modal Buttons */}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => {
+                  setSelectedPersonalTx(null);
+                  handleOpenPaymentHub();
+                }}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '12px 0',
+                  fontSize: 13,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 2L15 22L11 13L2 9L22 2Z" fill="white" stroke="white" strokeWidth="1"/>
+                </svg>
+                Repeat Payment
+              </button>
+              <button
+                onClick={() => setSelectedPersonalTx(null)}
+                style={{
+                  flex: 1,
+                  background: '#F1F5F9',
+                  color: '#475569',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '12px 0',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Done
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -885,40 +1358,43 @@ function TransactionCard({ tx, onClick }: { tx: ActivityTx; onClick: () => void 
     <div
       onClick={onClick}
       style={{
-        background: '#FAF8F5',
-        border: '1px solid #ECE7E1',
+        background: 'rgba(255, 255, 255, 0.78)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1.5px solid rgba(255, 255, 255, 0.95)',
         borderRadius: 16,
         padding: '12px 14px',
         display: 'flex',
         alignItems: 'center',
         gap: 12,
         cursor: 'pointer',
+        boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9)',
         transition: 'transform 0.15s ease, background 0.15s ease',
       }}
       onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.98)')}
       onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
     >
-      {/* ── Left Icon Box (↗ or ↙) ── */}
+      {/* ── Left Icon Box: Green for Debit / Red for Credit ── */}
       <div style={{
         width: 40,
         height: 40,
         borderRadius: 12,
-        background: isCredit ? '#DCFCE7' : '#F1F5F9',
-        border: isCredit ? '1px solid #86EFAC' : '1px solid #E2E8F0',
+        background: isCredit ? '#FEE2E2' : '#DCFCE7',
+        border: isCredit ? '1px solid #FECACA' : '1px solid #86EFAC',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
       }}>
         {isCredit ? (
-          /* Credit: Down-Left Arrow ↙ */
+          /* Credit: Inflow ↙ in Red */
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M17 7L7 17M7 17H17M7 17V7" stroke="#16A34A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M17 7L7 17M7 17H17M7 17V7" stroke="#DC2626" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         ) : (
-          /* Debit: Up-Right Arrow ↗ */
+          /* Debit: Outflow ↗ in Green */
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="#374151" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="#16A34A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
       </div>
@@ -947,12 +1423,12 @@ function TransactionCard({ tx, onClick }: { tx: ActivityTx; onClick: () => void 
         </div>
       </div>
 
-      {/* ── Right Amount + Status ── */}
+      {/* ── Right Amount + Status: Debit in Green / Credit in Red ── */}
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
         <div style={{
           fontSize: 14.5,
           fontWeight: 800,
-          color: isCredit ? '#059669' : '#111827',
+          color: isCredit ? '#DC2626' : '#16A34A',
           letterSpacing: '-0.01em',
         }}>
           {isCredit ? '+' : '−'}{formatINR(Math.abs(tx.amount))}
@@ -960,7 +1436,7 @@ function TransactionCard({ tx, onClick }: { tx: ActivityTx; onClick: () => void 
         <div style={{
           fontSize: 10,
           fontWeight: 700,
-          color: tx.status === 'PENDING' ? '#EA580C' : '#059669',
+          color: tx.status === 'PENDING' ? '#7C3AED' : (isCredit ? '#DC2626' : '#16A34A'),
           letterSpacing: '0.02em',
           marginTop: 1,
         }}>

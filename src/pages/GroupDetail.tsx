@@ -372,8 +372,10 @@ export function GroupDetail() {
         position: 'sticky',
         top: 0,
         zIndex: 30,
-        background: '#FAF8F5',
-        borderBottom: '1px solid #ECE7E1',
+        background: 'rgba(250, 248, 245, 0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: '1px solid rgba(236, 231, 225, 0.75)',
         padding: '12px 16px',
         display: 'flex',
         alignItems: 'center',
@@ -487,8 +489,10 @@ export function GroupDetail() {
         position: 'sticky',
         top: 61,
         zIndex: 25,
-        background: '#FAF8F5',
-        borderBottom: '1px solid #ECE7E1',
+        background: 'rgba(250, 248, 245, 0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: '1px solid rgba(236, 231, 225, 0.75)',
         padding: '8px 16px',
         display: 'flex',
         gap: 8,
@@ -522,7 +526,7 @@ export function GroupDetail() {
           <span style={{
             fontSize: 10,
             fontWeight: 800,
-            background: activeSectionTab === 'chat' ? '#EA580C' : '#EDE8E1',
+            background: activeSectionTab === 'chat' ? (group.themeColor || '#2563EB') : '#EDE8E1',
             color: activeSectionTab === 'chat' ? '#FFFFFF' : '#6B7280',
             padding: '1px 6px',
             borderRadius: 10,
@@ -581,16 +585,18 @@ export function GroupDetail() {
       }}>
         {/* Consensus Verification Banner */}
         <div style={{
-          background: '#FFF3E8',
-          border: '1px solid #FED7AA',
+          background: 'rgba(239, 246, 255, 0.85)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1.5px solid rgba(191, 219, 254, 0.75)',
           borderRadius: 14,
           padding: '10px 14px',
           textAlign: 'center',
           fontSize: 12,
-          color: '#9A3412',
+          color: '#1E40AF',
           fontWeight: 600,
           lineHeight: 1.45,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+          boxShadow: '0 4px 16px rgba(37, 99, 235, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.9)',
         }}>
           Cryptographically verified. Rule: spends &gt; ₹1,000 require 2/2 Admin signatures.
         </div>
@@ -690,16 +696,19 @@ export function GroupDetail() {
               {/* 3. Spend Request with Approvals */}
               {msg.type === 'spend_request' && (
                 <div style={{
-                  background: '#FFF7ED',
-                  border: '1px solid #FED7AA',
-                  borderRadius: 14,
+                  background: 'rgba(239, 246, 255, 0.88)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  border: '1.5px solid rgba(191, 219, 254, 0.8)',
+                  borderRadius: 16,
                   padding: '14px',
+                  boxShadow: '0 6px 22px rgba(37, 99, 235, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.95)',
                 }}>
                   {/* Header Row: SPEND REQUEST + Amount */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <span style={{
-                      background: '#FFEDD5',
-                      color: '#C2410C',
+                      background: '#DBEAFE',
+                      color: '#1E40AF',
                       fontSize: 10,
                       fontWeight: 800,
                       padding: '3px 8px',
@@ -708,7 +717,7 @@ export function GroupDetail() {
                     }}>
                       SPEND REQUEST
                     </span>
-                    <span style={{ fontSize: 18, fontWeight: 900, color: '#EA580C' }}>
+                    <span style={{ fontSize: 18, fontWeight: 900, color: '#2563EB' }}>
                       {formatINR(msg.spendAmount || 0)}
                     </span>
                   </div>
@@ -728,7 +737,7 @@ export function GroupDetail() {
                     justifyContent: 'space-between',
                     marginTop: 10,
                     paddingTop: 8,
-                    borderTop: '1px dashed #FED7AA',
+                    borderTop: '1px dashed #BFDBFE',
                   }}>
                     <span style={{ fontSize: 11.5, color: '#4B5563', fontWeight: 600 }}>
                       Signatures: {msg.signaturesCount} / {msg.signaturesNeeded}
@@ -738,8 +747,8 @@ export function GroupDetail() {
                       fontWeight: 800,
                       padding: '2px 7px',
                       borderRadius: 6,
-                      background: msg.spendStatus === 'approved' ? '#DCFCE7' : msg.spendStatus === 'declined' ? '#FEE2E2' : '#FEF3C7',
-                      color: msg.spendStatus === 'approved' ? '#16A34A' : msg.spendStatus === 'declined' ? '#DC2626' : '#D97706',
+                      background: msg.spendStatus === 'approved' ? '#DCFCE7' : msg.spendStatus === 'declined' ? '#FEE2E2' : '#EDE9FE',
+                      color: msg.spendStatus === 'approved' ? '#16A34A' : msg.spendStatus === 'declined' ? '#DC2626' : '#7C3AED',
                     }}>
                       {msg.spendStatus === 'approved' ? '✓ APPROVED' : msg.spendStatus === 'declined' ? 'DECLINED' : 'PENDING VOTE'}
                     </span>
@@ -878,13 +887,13 @@ export function GroupDetail() {
             <div style={{ marginBottom: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
                 <span style={{ color: '#374151' }}>Pool Budget Used (34%)</span>
-                <span style={{ color: '#EA580C' }}>₹8,450 / ₹25,000</span>
+                <span style={{ color: '#2563EB' }}>₹8,450 / ₹25,000</span>
               </div>
               <div style={{ height: 10, background: '#F3F4F6', borderRadius: 999, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
                   width: '34%',
-                  background: 'linear-gradient(90deg, #F97316 0%, #EA580C 100%)',
+                  background: 'linear-gradient(90deg, #3B82F6 0%, #1D4ED8 100%)',
                   borderRadius: 999,
                 }} />
               </div>
@@ -907,7 +916,7 @@ export function GroupDetail() {
                   <span style={{ color: '#4B5563' }}>₹3,550 (42%)</span>
                 </div>
                 <div style={{ height: 6, background: '#F3F4F6', borderRadius: 999, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: '42%', background: '#F97316', borderRadius: 999 }} />
+                  <div style={{ height: '100%', width: '42%', background: '#2563EB', borderRadius: 999 }} />
                 </div>
               </div>
 
@@ -953,10 +962,10 @@ export function GroupDetail() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
-                  { name: 'Priya Sharma', amt: '₹8,000', pct: '35%', color: '#C026D3' },
+                  { name: 'Priya Sharma', amt: '₹8,000', pct: '35%', color: '#7C3AED' },
                   { name: 'Nikhil (You)', amt: '₹6,000', pct: '26%', color: '#2563EB' },
                   { name: 'Gaurang', amt: '₹5,000', pct: '22%', color: '#10B981' },
-                  { name: 'Mrunali', amt: '₹3,950', pct: '17%', color: '#F59E0B' },
+                  { name: 'Mrunali', amt: '₹3,950', pct: '17%', color: '#6366F1' },
                 ].map(m => (
                   <div key={m.name}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, marginBottom: 3 }}>
@@ -1052,8 +1061,8 @@ export function GroupDetail() {
                             width: 38,
                             height: 38,
                             borderRadius: '50%',
-                            background: tx.type === 'contribution' ? '#DCFCE7' : tx.status === 'PENDING' ? '#FFEDD5' : '#FEE2E2',
-                            color: tx.type === 'contribution' ? '#16A34A' : tx.status === 'PENDING' ? '#EA580C' : '#DC2626',
+                            background: tx.type === 'contribution' ? '#DCFCE7' : tx.status === 'PENDING' ? '#EDE9FE' : '#FEE2E2',
+                            color: tx.type === 'contribution' ? '#16A34A' : tx.status === 'PENDING' ? '#7C3AED' : '#DC2626',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1087,7 +1096,7 @@ export function GroupDetail() {
                           <div style={{
                             fontSize: 9.5,
                             fontWeight: 700,
-                            color: tx.status === 'PENDING' ? '#EA580C' : '#059669',
+                            color: tx.status === 'PENDING' ? '#7C3AED' : '#059669',
                             marginTop: 1,
                           }}>
                             {tx.status}
@@ -1133,11 +1142,13 @@ export function GroupDetail() {
               bottom: 60,
               left: 0,
               width: 255,
-              background: '#FFFFFF',
+              background: 'rgba(255, 255, 255, 0.88)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
               borderRadius: 24,
               padding: '14px',
-              boxShadow: '0 16px 40px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.06)',
-              border: '1px solid #ECE7E1',
+              boxShadow: '0 20px 48px rgba(15, 23, 42, 0.16), inset 0 1px 1.5px rgba(255, 255, 255, 0.95)',
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
               zIndex: 42,
               animation: 'slideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
             }}>
@@ -1212,12 +1223,12 @@ export function GroupDetail() {
                     width: 48,
                     height: 48,
                     borderRadius: '50%',
-                    background: '#EA580C',
+                    background: '#2563EB',
                     color: '#FFFFFF',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.35)',
+                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
                   }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -1326,14 +1337,16 @@ export function GroupDetail() {
 
         {/* ── Seamless Capsule Pill Container (Screenshot 1 & 2) ── */}
         <div style={{
-          background: '#FFFFFF',
+          background: 'rgba(255, 255, 255, 0.88)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           borderRadius: 9999,
           padding: '5px 6px',
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.04)',
-          border: '1px solid #ECE7E1',
+          boxShadow: '0 8px 32px rgba(15, 23, 42, 0.10), inset 0 1px 1px rgba(255, 255, 255, 0.9)',
+          border: '1.5px solid rgba(255, 255, 255, 0.95)',
           position: 'relative',
         }}>
           {/* Left Action Launcher Button: '+' (Closed) or '✕' with Blue Outline Ring (Open) */}
@@ -1553,7 +1566,7 @@ export function GroupDetail() {
                   width: 38,
                   height: 38,
                   borderRadius: '50%',
-                  background: '#EA580C',
+                  background: '#2563EB',
                   color: '#FFFFFF',
                   display: 'flex',
                   alignItems: 'center',
@@ -1580,7 +1593,7 @@ export function GroupDetail() {
             <div style={{ marginBottom: 14 }}>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase' }}>Amount to Spend (₹)</label>
               <div style={{ position: 'relative', marginTop: 6 }}>
-                <span style={{ position: 'absolute', left: 14, top: 11, fontSize: 20, fontWeight: 800, color: '#EA580C' }}>₹</span>
+                <span style={{ position: 'absolute', left: 14, top: 11, fontSize: 20, fontWeight: 800, color: '#2563EB' }}>₹</span>
                 <input
                   type="number"
                   value={spendAmount}
@@ -1591,7 +1604,7 @@ export function GroupDetail() {
                     fontSize: 22,
                     fontWeight: 800,
                     borderRadius: 12,
-                    border: '1.5px solid #EA580C',
+                    border: '1.5px solid #2563EB',
                     outline: 'none',
                     color: '#111827',
                   }}
@@ -1638,11 +1651,11 @@ export function GroupDetail() {
             </div>
 
             <div style={{
-              background: '#FFF7ED',
+              background: '#EFF6FF',
               borderRadius: 10,
               padding: '10px 12px',
               fontSize: 11,
-              color: '#C2410C',
+              color: '#1E40AF',
               fontWeight: 600,
               marginBottom: 18,
             }}>
@@ -1653,7 +1666,7 @@ export function GroupDetail() {
               onClick={handleSpendRequestSubmit}
               style={{
                 width: '100%',
-                background: '#EA580C',
+                background: '#2563EB',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 12,
@@ -1735,7 +1748,7 @@ export function GroupDetail() {
                 <rect x="66" y="27" width="6" height="6" rx="1" fill="#111827" />
 
                 <rect x="48" y="48" width="8" height="8" rx="1.5" fill="#10B981" />
-                <rect x="62" y="48" width="8" height="8" rx="1.5" fill="#EA580C" />
+                <rect x="62" y="48" width="8" height="8" rx="1.5" fill="#2563EB" />
                 <rect x="48" y="62" width="8" height="8" rx="1.5" fill="#2563EB" />
                 <rect x="62" y="62" width="8" height="8" rx="1.5" fill="#7C3AED" />
 

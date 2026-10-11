@@ -12,6 +12,8 @@ import { Notifications } from './pages/Notifications';
 import { Login } from './pages/Login';
 import { OTP } from './pages/OTP';
 import { ScanPay } from './pages/ScanPay';
+import { TermsAndConditions } from './pages/TermsAndConditions';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
 
 export default function App() {
   return (
@@ -22,6 +24,10 @@ export default function App() {
         {/* Auth screens (no bottom nav) */}
         <Route path="/login" element={<Login />} />
         <Route path="/otp" element={<OTP />} />
+
+        {/* Legal pages (standalone, no bottom nav) */}
+        <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
 
         {/* Main app shell with bottom nav */}
         <Route element={<AppShell />}>
@@ -38,6 +44,6 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-  </>
+    </>
   );
 }

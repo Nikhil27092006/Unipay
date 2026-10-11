@@ -131,11 +131,11 @@ export const MOCK_GROUPS: Group[] = [
     id: 'g3',
     name: 'Weekend Group',
     icon: 'weekend',
-    iconBg: '#0D9488',
+    iconBg: '#16A34A',
     iconColor: '#FFFFFF',
-    cardBg: '#CCFBF1',
-    cardBorder: '#5EEAD4',
-    themeColor: '#0D9488',
+    cardBg: '#DCFCE7',
+    cardBorder: '#86EFAC',
+    themeColor: '#16A34A',
     balance: 2350,
     cap: 5000,
     members: [
@@ -152,11 +152,11 @@ export const MOCK_GROUPS: Group[] = [
     id: 'g4',
     name: 'Office Lunch',
     icon: 'dining',
-    iconBg: '#F59E0B',
+    iconBg: '#7C3AED',
     iconColor: '#FFFFFF',
-    cardBg: '#FEF3C7',
-    cardBorder: '#FCD34D',
-    themeColor: '#F59E0B',
+    cardBg: '#EDE9FE',
+    cardBorder: '#C4B5FD',
+    themeColor: '#7C3AED',
     balance: 1800,
     cap: 3000,
     members: [
@@ -269,47 +269,151 @@ export type PaymentDir = 'paid' | 'received' | 'added';
 
 export interface PersonalPayment {
   id: string;
-  groupId: string;
-  groupName: string;
-  groupIcon: string;
-  groupTheme: string;
-  groupCardBg: string;
+  groupId?: string;
+  groupName?: string;
+  groupIcon?: string;
+  groupTheme?: string;
+  groupCardBg?: string;
   merchant: string;
   note: string;
   amount: number;
-  dir: PaymentDir;          // paid = you paid from group wallet, received = group paid you back, added = you topped up
+  dir: PaymentDir;          // paid = debited, received = credited, added = topped up
   date: string;             // display string
   status: 'success' | 'pending' | 'failed';
+  upiRef?: string;
+  account?: string;
+  paymentMode?: 'UPI ID' | 'QR Code' | 'Mobile Number' | 'UPI Lite';
+  category?: string;
 }
 
 export const MOCK_PERSONAL_PAYMENTS: PersonalPayment[] = [
-  // ── Flatmates
+  // ── Direct Personal UPI Payments
+  {
+    id: 'upi_1',
+    merchant: 'Swiggy Gourmet',
+    note: 'Dinner with friends',
+    amount: 420,
+    dir: 'paid',
+    date: 'Today, 1:15 PM',
+    status: 'success',
+    upiRef: '4291829104',
+    account: 'HDFC Bank •••• 4921',
+    paymentMode: 'QR Code',
+    category: 'Food',
+  },
+  {
+    id: 'upi_2',
+    merchant: 'Aarav Sharma',
+    note: 'Movie ticket share',
+    amount: 850,
+    dir: 'paid',
+    date: 'Today, 11:30 AM',
+    status: 'success',
+    upiRef: '4291038102',
+    account: 'HDFC Bank •••• 4921',
+    paymentMode: 'UPI ID',
+    category: 'Transfer',
+  },
+  {
+    id: 'upi_3',
+    merchant: 'Priya Patel',
+    note: 'Cab share received',
+    amount: 1200,
+    dir: 'received',
+    date: 'Yesterday, 9:20 PM',
+    status: 'success',
+    upiRef: '4289104928',
+    account: 'HDFC Bank •••• 4921',
+    paymentMode: 'UPI ID',
+    category: 'Settlement',
+  },
+  {
+    id: 'upi_4',
+    merchant: 'Starbucks Coffee',
+    note: 'Cold brew & croissant',
+    amount: 345,
+    dir: 'paid',
+    date: 'Yesterday, 4:40 PM',
+    status: 'success',
+    upiRef: '4288194012',
+    account: 'UPI Lite',
+    paymentMode: 'UPI Lite',
+    category: 'Cafes',
+  },
+  {
+    id: 'upi_5',
+    merchant: 'Tata Power / Adani',
+    note: 'Monthly electricity bill',
+    amount: 1850,
+    dir: 'paid',
+    date: '5 Oct 2026, 10:10 AM',
+    status: 'success',
+    upiRef: '4281903819',
+    account: 'HDFC Bank •••• 4921',
+    paymentMode: 'QR Code',
+    category: 'Utilities',
+  },
+  {
+    id: 'upi_6',
+    merchant: 'Sneha Kulkarni',
+    note: 'Dinner split reimbursement',
+    amount: 600,
+    dir: 'received',
+    date: '4 Oct 2026, 6:00 PM',
+    status: 'success',
+    upiRef: '4279184019',
+    account: 'HDFC Bank •••• 4921',
+    paymentMode: 'Mobile Number',
+    category: 'Reimbursement',
+  },
+  {
+    id: 'upi_7',
+    merchant: 'D-Mart Supermarket',
+    note: 'Weekly essentials & snacks',
+    amount: 1240,
+    dir: 'paid',
+    date: '3 Oct 2026, 7:15 PM',
+    status: 'success',
+    upiRef: '4271893018',
+    account: 'HDFC Bank •••• 4921',
+    paymentMode: 'QR Code',
+    category: 'Groceries',
+  },
+  {
+    id: 'upi_8',
+    merchant: 'Freelance Design Retainer',
+    note: 'Mobile UI sprint payout',
+    amount: 14500,
+    dir: 'received',
+    date: '28 Sep 2026, 11:00 AM',
+    status: 'success',
+    upiRef: '4259182019',
+    account: 'HDFC Bank •••• 4921',
+    paymentMode: 'UPI ID',
+    category: 'Income',
+  },
+
+  // ── Group Wallet Linked Personal Transactions
   { id: 'pp1', groupId: 'g1', groupName: 'Flatmates', groupIcon: 'flatmates', groupTheme: '#2563EB', groupCardBg: '#DBEAFE',
-    merchant: 'D-Mart', note: 'Monthly groceries', amount: 1240, dir: 'paid', date: 'Today, 10:30 PM', status: 'success' },
+    merchant: 'D-Mart', note: 'Monthly groceries', amount: 1240, dir: 'paid', date: 'Today, 10:30 PM', status: 'success', account: 'Flatmates Vault', upiRef: '4291881023', category: 'Groceries' },
   { id: 'pp2', groupId: 'g1', groupName: 'Flatmates', groupIcon: 'flatmates', groupTheme: '#2563EB', groupCardBg: '#DBEAFE',
-    merchant: 'Wallet Top-up', note: 'Added money to group', amount: 2000, dir: 'added', date: 'Yesterday, 6:00 PM', status: 'success' },
+    merchant: 'Wallet Top-up', note: 'Added money to group', amount: 2000, dir: 'added', date: 'Yesterday, 6:00 PM', status: 'success', account: 'HDFC Bank •••• 4921', upiRef: '4291772019', category: 'Deposit' },
   { id: 'pp3', groupId: 'g1', groupName: 'Flatmates', groupIcon: 'flatmates', groupTheme: '#2563EB', groupCardBg: '#DBEAFE',
-    merchant: 'Electricity Bill', note: 'Oct electricity', amount: 760, dir: 'paid', date: 'Oct 6, 9:15 AM', status: 'success' },
-
-  // ── Ganpati Group
+    merchant: 'Electricity Bill', note: 'Oct electricity', amount: 760, dir: 'paid', date: 'Oct 6, 9:15 AM', status: 'success', account: 'Flatmates Vault', upiRef: '4291663012', category: 'Bills' },
   { id: 'pp4', groupId: 'g2', groupName: 'Ganpati Group', groupIcon: 'ganpati', groupTheme: '#7C3AED', groupCardBg: '#EDE9FE',
-    merchant: 'Decoration Shop', note: 'Flowers & pooja items', amount: 320, dir: 'paid', date: 'Oct 5, 11:00 AM', status: 'success' },
+    merchant: 'Decoration Shop', note: 'Flowers & pooja items', amount: 320, dir: 'paid', date: 'Oct 5, 11:00 AM', status: 'success', account: 'Ganpati Vault', upiRef: '4291554011', category: 'Festival' },
   { id: 'pp5', groupId: 'g2', groupName: 'Ganpati Group', groupIcon: 'ganpati', groupTheme: '#7C3AED', groupCardBg: '#EDE9FE',
-    merchant: 'Wallet Top-up', note: 'Festival fund', amount: 1000, dir: 'added', date: 'Oct 4, 2:00 PM', status: 'success' },
-
-  // ── Weekend Group
-  { id: 'pp6', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#0D9488', groupCardBg: '#CCFBF1',
-    merchant: 'OYO Rooms', note: 'Hotel – 2 nights Lonavala', amount: 3500, dir: 'paid', date: 'Oct 3, 4:45 PM', status: 'pending' },
-  { id: 'pp7', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#0D9488', groupCardBg: '#CCFBF1',
-    merchant: 'Swiggy', note: 'Group dinner on trip', amount: 840, dir: 'paid', date: 'Oct 2, 8:30 PM', status: 'success' },
-  { id: 'pp8', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#0D9488', groupCardBg: '#CCFBF1',
-    merchant: 'Refund', note: 'Trip cancellation refund', amount: 500, dir: 'received', date: 'Oct 1, 12:00 PM', status: 'success' },
-
-  // ── Office Lunch
-  { id: 'pp9', groupId: 'g4', groupName: 'Office Lunch', groupIcon: 'dining', groupTheme: '#F59E0B', groupCardBg: '#FEF3C7',
-    merchant: 'Zomato', note: 'Team lunch order', amount: 650, dir: 'paid', date: 'Sep 30, 1:15 PM', status: 'success' },
-  { id: 'pp10', groupId: 'g4', groupName: 'Office Lunch', groupIcon: 'dining', groupTheme: '#F59E0B', groupCardBg: '#FEF3C7',
-    merchant: 'Wallet Top-up', note: 'Oct lunch fund', amount: 800, dir: 'added', date: 'Sep 29, 9:00 AM', status: 'success' },
+    merchant: 'Wallet Top-up', note: 'Festival fund', amount: 1000, dir: 'added', date: 'Oct 4, 2:00 PM', status: 'success', account: 'HDFC Bank •••• 4921', upiRef: '4291445010', category: 'Deposit' },
+  { id: 'pp6', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#16A34A', groupCardBg: '#DCFCE7',
+    merchant: 'OYO Rooms', note: 'Hotel – 2 nights Lonavala', amount: 3500, dir: 'paid', date: 'Oct 3, 4:45 PM', status: 'pending', account: 'Weekend Vault', upiRef: '4291336015', category: 'Travel' },
+  { id: 'pp7', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#16A34A', groupCardBg: '#DCFCE7',
+    merchant: 'Swiggy', note: 'Group dinner on trip', amount: 840, dir: 'paid', date: 'Oct 2, 8:30 PM', status: 'success', account: 'Weekend Vault', upiRef: '4291227014', category: 'Food' },
+  { id: 'pp8', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#16A34A', groupCardBg: '#DCFCE7',
+    merchant: 'Refund', note: 'Trip cancellation refund', amount: 500, dir: 'received', date: 'Oct 1, 12:00 PM', status: 'success', account: 'Weekend Vault', upiRef: '4291118018', category: 'Refund' },
+  { id: 'pp9', groupId: 'g4', groupName: 'Office Lunch', groupIcon: 'dining', groupTheme: '#7C3AED', groupCardBg: '#EDE9FE',
+    merchant: 'Zomato', note: 'Team lunch order', amount: 650, dir: 'paid', date: 'Sep 30, 1:15 PM', status: 'success', account: 'Lunch Vault', upiRef: '4291009017', category: 'Food' },
+  { id: 'pp10', groupId: 'g4', groupName: 'Office Lunch', groupIcon: 'dining', groupTheme: '#7C3AED', groupCardBg: '#EDE9FE',
+    merchant: 'Wallet Top-up', note: 'Oct lunch fund', amount: 800, dir: 'added', date: 'Sep 29, 9:00 AM', status: 'success', account: 'HDFC Bank •••• 4921', upiRef: '4290991016', category: 'Deposit' },
 ];
 
 // ============================================================

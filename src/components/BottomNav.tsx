@@ -1,9 +1,21 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 
-export function BottomNav() {
+interface BottomNavProps {
+  onOpenPay?: () => void;
+}
+
+export function BottomNav({ onOpenPay }: BottomNavProps = {}) {
   const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname;
+
+  const handlePlaneClick = () => {
+    if (onOpenPay) {
+      onOpenPay();
+    } else {
+      window.dispatchEvent(new CustomEvent('cowallet-open-payment-modal'));
+    }
+  };
 
   const isActive = (route: string) => {
     if (route === '/') return path === '/';
@@ -110,7 +122,7 @@ export function BottomNav() {
           }} />
 
           <button
-            onClick={() => navigate('/scan')}
+            onClick={handlePlaneClick}
             aria-label="Send & Pay"
             style={{
               position: 'relative',

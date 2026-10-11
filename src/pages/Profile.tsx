@@ -189,15 +189,22 @@ export function Profile() {
     {
       title: 'Preferences',
       items: [
-        { iconName: 'bell', iconBg: '#FFFBEB', iconColor: '#D97706', label: 'Notifications', sub: 'Alerts, approvals, activity', route: '/notifications' },
+        { iconName: 'bell', iconBg: '#EFF6FF', iconColor: '#2563EB', label: 'Notifications', sub: 'Alerts, approvals, activity', route: '/notifications' },
         { iconName: 'lock', iconBg: '#FEF2F2', iconColor: '#DC2626', label: 'Security & Privacy', sub: 'PIN, biometrics, sessions', route: '/profile/security' },
       ],
     },
     {
       title: 'More',
       items: [
-        { iconName: 'zap', iconBg: '#F0F9FF', iconColor: '#0284C7', label: 'Replay Intro Animation', sub: 'Re-experience CoWallet splash', route: '#replay' },
         { iconName: 'help', iconBg: '#F8FAFC', iconColor: '#64748B', label: 'Help & Support', sub: 'FAQs, raise a ticket', route: '/profile/help' },
+        { iconName: 'zap', iconBg: '#F0F9FF', iconColor: '#0284C7', label: 'Replay Intro Animation', sub: 'Re-experience CoWallet splash', route: '#replay' },
+      ],
+    },
+    {
+      title: 'Legal',
+      items: [
+        { iconName: 'shield', iconBg: '#F8FAFC', iconColor: '#475569', label: 'Terms & Conditions', sub: 'User agreement and usage rules', route: '/terms' },
+        { iconName: 'lock', iconBg: '#F8FAFC', iconColor: '#475569', label: 'Privacy Policy', sub: 'How we collect and use your data', route: '/privacy' },
       ],
     },
   ];
@@ -337,8 +344,8 @@ export function Profile() {
             value="4.9"
             sub="Trust score"
             iconName="star"
-            iconBg="linear-gradient(135deg, #FFFBEB, #FEF3C7)"
-            iconColor="#F59E0B"
+            iconBg="linear-gradient(135deg, #EFF6FF, #DBEAFE)"
+            iconColor="#2563EB"
           />
         </div>
 
@@ -357,7 +364,7 @@ export function Profile() {
           <div style={{ display: 'flex', gap: 10 }}>
             <QuickAction iconName="card" label="Add Money" color="#2563EB" bg="#EFF6FF" onClick={() => {}} />
             <QuickAction iconName="group" label="New Group" color="#7C3AED" bg="#F5F3FF" onClick={() => navigate('/create-group')} />
-            <QuickAction iconName="bell" label="Alerts" color="#D97706" bg="#FFFBEB" onClick={() => navigate('/notifications')} />
+            <QuickAction iconName="bell" label="Alerts" color="#2563EB" bg="#EFF6FF" onClick={() => navigate('/notifications')} />
             <QuickAction iconName="shield" label="KYC" color="#059669" bg="#ECFDF5" onClick={() => navigate('/kyc')} />
           </div>
         </div>
@@ -378,7 +385,7 @@ export function Profile() {
               style={{
                 flex: 1,
                 padding: '10px',
-                borderRadius: 11,
+                borderRadius: 10,
                 border: 'none',
                 background: activeTab === tab ? '#FFFFFF' : 'transparent',
                 fontSize: 13,
@@ -387,7 +394,6 @@ export function Profile() {
                 cursor: 'pointer',
                 boxShadow: activeTab === tab ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
                 transition: 'all 0.2s ease',
-                textTransform: 'capitalize',
               }}
             >
               {tab === 'settings' ? 'Settings' : 'Recent Activity'}
@@ -465,8 +471,23 @@ export function Profile() {
               Sign Out
             </button>
 
-            {/* App version */}
-            <div style={{ textAlign: 'center', marginTop: 4, paddingBottom: 8 }}>
+            {/* Legal Footer */}
+            <div style={{ textAlign: 'center', marginTop: 6, paddingBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginBottom: 6 }}>
+                <button
+                  onClick={() => navigate('/terms')}
+                  style={{ background: 'none', border: 'none', fontSize: 12, color: '#2563EB', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                >
+                  Terms &amp; Conditions
+                </button>
+                <span style={{ color: '#CBD5E1', fontSize: 12 }}>·</span>
+                <button
+                  onClick={() => navigate('/privacy')}
+                  style={{ background: 'none', border: 'none', fontSize: 12, color: '#2563EB', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                >
+                  Privacy Policy
+                </button>
+              </div>
               <div style={{ fontSize: 11.5, color: '#CBD5E1', fontWeight: 500 }}>CoWallet v1.0.0 · Made with care in India</div>
             </div>
           </div>
@@ -475,25 +496,6 @@ export function Profile() {
         {/* ── ACTIVITY TAB ─────────────────────────────────────── */}
         {activeTab === 'activity' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {/* Summary strip */}
-            <div style={{
-              background: 'linear-gradient(135deg, #F0FDF4, #DCFCE7)',
-              border: '1px solid #BBF7D0',
-              borderRadius: 16,
-              padding: '14px 18px',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#15803D', textTransform: 'uppercase', letterSpacing: '0.05em' }}>This Month</div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: '#14532D', marginTop: 2 }}>+₹3,500</div>
-                <div style={{ fontSize: 11, color: '#16A34A', marginTop: 2 }}>Net contributions</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Spent</div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: '#92400E', marginTop: 2 }}>-₹3,800</div>
-                <div style={{ fontSize: 11, color: '#D97706', marginTop: 2 }}>Group payments</div>
-              </div>
-            </div>
 
             {/* Activity list */}
             <div style={{
