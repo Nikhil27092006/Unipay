@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   formatINR, CURRENT_USER, MOCK_PERSONAL_PAYMENTS,
   type PersonalPayment
@@ -257,6 +257,7 @@ const ALL_ACTIVITY_TXS: ActivityTx[] = [
 
 export function Activity() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Filter States
   const [activeTab, setActiveTab] = useState<'All' | 'Payments' | 'Contributions' | 'Refunds'>('All');
@@ -267,7 +268,20 @@ export function Activity() {
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Top-level History Source Switcher: Group Payments vs Personal UPI
-  const [historySource, setHistorySource] = useState<'groups' | 'personal'>('groups');
+  // Read ?tab= param: 'personal' → personal, anything else → groups
+  const [historySource, setHistorySource] = useState<'groups' | 'personal'>(
+    searchParams.get('tab') === 'personal' ? 'personal' : 'groups'
+  );
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'personal') {
+      setHistorySource('personal');
+    } else if (tab === 'groups') {
+      setHistorySource('groups');
+    }
+  }, [searchParams]);
+
   const [personalTab, setPersonalTab] = useState<'All' | 'Debited' | 'Credited' | 'Top-ups'>('All');
   const [selectedPersonalTx, setSelectedPersonalTx] = useState<PersonalPayment | null>(null);
 
@@ -421,9 +435,6 @@ export function Activity() {
           }}>
             Activity
           </h1>
-          <p style={{ fontSize: 12, color: '#6B7280', margin: '3px 0 0', fontWeight: 500 }}>
-            Track group expenses & personal UPI payments
-          </p>
         </div>
 
         {historySource === 'groups' ? (
@@ -514,7 +525,7 @@ export function Activity() {
             <circle cx="9" cy="7" r="4"/>
             <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
           </svg>
-          <span>Group Payments</span>
+          <span>Group</span>
         </button>
 
         <button
@@ -528,12 +539,12 @@ export function Activity() {
             padding: '10px 14px',
             borderRadius: 12,
             border: 'none',
-            background: historySource === 'personal' ? 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)' : 'transparent',
+            background: historySource === 'personal' ? 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' : 'transparent',
             color: historySource === 'personal' ? '#FFFFFF' : '#4B5563',
             fontSize: 13,
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: historySource === 'personal' ? '0 4px 14px rgba(124, 58, 237, 0.28)' : 'none',
+            boxShadow: historySource === 'personal' ? '0 4px 14px rgba(37, 99, 235, 0.28)' : 'none',
             transition: 'all 0.18s ease',
           }}
         >
@@ -542,7 +553,7 @@ export function Activity() {
             <line x1="2" y1="10" x2="22" y2="10"/>
             <circle cx="7" cy="15" r="1.5" fill="currentColor"/>
           </svg>
-          <span>Personal UPI</span>
+          <span>Personal</span>
         </button>
       </div>
 
@@ -936,14 +947,14 @@ export function Activity() {
                     flex: 1,
                     padding: '8px 4px',
                     borderRadius: 20,
-                    background: isActive ? '#7C3AED' : 'transparent',
+                    background: isActive ? '#2563EB' : 'transparent',
                     color: isActive ? '#FFFFFF' : '#6B7280',
                     border: 'none',
                     fontSize: 12.5,
                     fontWeight: 800,
                     cursor: 'pointer',
                     textAlign: 'center',
-                    boxShadow: isActive ? '0 2px 6px rgba(124, 58, 237, 0.3)' : 'none',
+                    boxShadow: isActive ? '0 2px 6px rgba(37, 99, 235, 0.3)' : 'none',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -1018,7 +1029,7 @@ export function Activity() {
                       <div style={{ fontSize: 11.5, color: '#6B7280', marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span>{tx.note}</span>
                         <span>•</span>
-                        <span style={{ color: '#7C3AED', fontWeight: 600 }}>{tx.paymentMode || 'UPI'}</span>
+                        <span style={{ color: '#2563EB', fontWeight: 600 }}>{tx.paymentMode || 'UPI'}</span>
                       </div>
                       <div style={{ fontSize: 10.5, color: '#9CA3AF', marginTop: 2 }}>
                         {tx.date} · {tx.account || 'HDFC Bank ••4921'}
@@ -1138,7 +1149,7 @@ export function Activity() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#6B7280' }}>Payment Mode</span>
-                <span style={{ fontWeight: 700, color: '#7C3AED' }}>{selectedPersonalTx.paymentMode || 'UPI ID'}</span>
+                <span style={{ fontWeight: 700, color: '#2563EB' }}>{selectedPersonalTx.paymentMode || 'UPI ID'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#6B7280' }}>Timestamp</span>

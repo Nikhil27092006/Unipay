@@ -14,6 +14,8 @@ import { OTP } from './pages/OTP';
 import { ScanPay } from './pages/ScanPay';
 import { TermsAndConditions } from './pages/TermsAndConditions';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { PersonalPay } from './pages/PersonalPay';
+import { GroupPay } from './pages/GroupPay';
 
 export default function App() {
   return (
@@ -37,6 +39,10 @@ export default function App() {
           <Route path="/create-group" element={<CreateGroup />} />
           <Route path="/join-group" element={<JoinGroup />} />
           <Route path="/activity" element={<Activity />} />
+          <Route path="/pay/personal" element={<PersonalPay />} />
+          <Route path="/pay/group" element={<GroupPay />} />
+          <Route path="/pay-personal" element={<Navigate to="/pay/personal" replace />} />
+          <Route path="/pay-group" element={<Navigate to="/pay/group" replace />} />
           <Route path="/scan" element={<ScanPay />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/notifications" element={<Notifications />} />

@@ -178,15 +178,15 @@ export function EntrySplash({ onComplete }: { onComplete?: () => void }) {
 
   const particleData = [
     { top: '20%', left: '12%',  size: 9,  color: '#38BDF8' },
-    { top: '15%', right: '15%', size: 11, color: '#818CF8' },
-    { top: '38%', left: '7%',   size: 7,  color: '#34D399' },
-    { top: '38%', right: '8%',  size: 8,  color: '#A78BFA' },
-    { top: '60%', left: '10%',  size: 8,  color: '#34D399' },
+    { top: '15%', right: '15%', size: 11, color: '#60A5FA' },
+    { top: '38%', left: '7%',   size: 7,  color: '#3B82F6' },
+    { top: '38%', right: '8%',  size: 8,  color: '#2563EB' },
+    { top: '60%', left: '10%',  size: 8,  color: '#3B82F6' },
     { top: '62%', right: '11%', size: 7,  color: '#60A5FA' },
     { top: '25%', left: '35%',  size: 5,  color: '#2563EB' },
-    { top: '22%', right: '36%', size: 5,  color: '#9333EA' },
+    { top: '22%', right: '36%', size: 5,  color: '#1D4ED8' },
     { top: '55%', left: '27%',  size: 6,  color: '#60A5FA' },
-    { top: '50%', right: '28%', size: 6,  color: '#A78BFA' },
+    { top: '50%', right: '28%', size: 6,  color: '#3B82F6' },
   ];
 
   return (
@@ -194,7 +194,7 @@ export function EntrySplash({ onComplete }: { onComplete?: () => void }) {
       ref={containerRef}
       style={{
         position: 'fixed', inset: 0, zIndex: 99999,
-        background: 'linear-gradient(165deg, #F0F6FF 0%, #FAF5FF 50%, #F0FBFF 100%)',
+        background: 'linear-gradient(165deg, #F0F6FF 0%, #F8FAFC 50%, #F0FBFF 100%)',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         overflow: 'hidden',
@@ -207,7 +207,7 @@ export function EntrySplash({ onComplete }: { onComplete?: () => void }) {
         position: 'absolute',
         width: 600, height: 600,
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(37,99,235,0.13) 0%, rgba(124,58,237,0.07) 40%, rgba(6,182,212,0.04) 65%, transparent 100%)',
+        background: 'radial-gradient(circle, rgba(37,99,235,0.13) 0%, rgba(37,99,235,0.07) 40%, rgba(37,99,235,0.04) 65%, transparent 100%)',
         filter: 'blur(50px)',
         pointerEvents: 'none',
       }} />
@@ -224,8 +224,8 @@ export function EntrySplash({ onComplete }: { onComplete?: () => void }) {
       <div ref={ring2Ref} style={{
         position: 'absolute',
         width: 320, height: 320, borderRadius: '50%',
-        border: '1.5px solid rgba(124,58,237,0.25)',
-        boxShadow: '0 0 30px rgba(124,58,237,0.1)',
+        border: '1.5px solid rgba(37,99,235,0.25)',
+        boxShadow: '0 0 30px rgba(37,99,235,0.1)',
         pointerEvents: 'none',
         transformOrigin: 'center',
       }} />
@@ -291,10 +291,10 @@ export function EntrySplash({ onComplete }: { onComplete?: () => void }) {
               <stop offset="100%" stopColor="#60A5FA" />
             </linearGradient>
 
-            {/* Left person – teal/green */}
+            {/* Left person – blue light */}
             <linearGradient id="personLGrad" x1="0.2" y1="0" x2="0.8" y2="1">
-              <stop offset="0%" stopColor="#14B8A6" />
-              <stop offset="100%" stopColor="#0D9488" />
+              <stop offset="0%" stopColor="#60A5FA" />
+              <stop offset="100%" stopColor="#3B82F6" />
             </linearGradient>
 
             {/* Center person – royal blue */}
@@ -303,10 +303,10 @@ export function EntrySplash({ onComplete }: { onComplete?: () => void }) {
               <stop offset="100%" stopColor="#1D4ED8" />
             </linearGradient>
 
-            {/* Right person – purple/violet */}
+            {/* Right person – blue dark */}
             <linearGradient id="personRGrad" x1="0.2" y1="0" x2="0.8" y2="1">
-              <stop offset="0%" stopColor="#A855F7" />
-              <stop offset="100%" stopColor="#7C3AED" />
+              <stop offset="0%" stopColor="#3B82F6" />
+              <stop offset="100%" stopColor="#1D4ED8" />
             </linearGradient>
 
             {/* Shimmer gradient */}
@@ -481,7 +481,7 @@ export function EntrySplash({ onComplete }: { onComplete?: () => void }) {
             ref={progressRef}
             style={{
               width: '100%', height: '100%',
-              background: 'linear-gradient(90deg, #2563EB, #7C3AED, #06B6D4)',
+              background: 'linear-gradient(90deg, #2563EB, #1D4ED8, #60A5FA)',
               borderRadius: 3,
               animation: 'cowalletLoad 2.2s cubic-bezier(0.4,0,0.2,1) forwards',
             }}

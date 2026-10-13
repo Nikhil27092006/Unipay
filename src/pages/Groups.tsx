@@ -1,133 +1,125 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
-import { MOCK_GROUPS, formatINR, pct, type Group } from '../data/mockData';
-import { EmojiBadge } from '../components/EmojiBadge';
-
-// ── Total vault stats ──────────────────────────────────────────
-const totalBalance = MOCK_GROUPS.reduce((s, g) => s + g.balance, 0);
-const totalCap = MOCK_GROUPS.reduce((s, g) => s + g.cap, 0);
-const totalSpent = MOCK_GROUPS.reduce((s, g) => s + g.spentThisMonth, 0);
-
-// Member avatar monogram color generator
-const MONOGRAM_COLORS = [
-  'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-  'linear-gradient(135deg, #8B5CF6, #6D28D9)',
-  'linear-gradient(135deg, #10B981, #047857)',
-  'linear-gradient(135deg, #6366F1, #4F46E5)',
-  'linear-gradient(135deg, #2563EB, #1E40AF)',
-  'linear-gradient(135deg, #059669, #047857)',
-];
+import { MOCK_GROUPS, type Group } from '../data/mockData';
 
 export function Groups() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<string>('all');
+  const [groupTab, setGroupTab] = useState<'active' | 'closed'>('active');
 
-  const categories = [
-    { id: 'all', label: `All (${MOCK_GROUPS.length})` },
-    { id: 'living', label: 'Living' },
-    { id: 'events', label: 'Events' },
-    { id: 'trip', label: 'Trips' },
-    { id: 'dining', label: 'Dining' },
-  ];
+  const activeGroups = MOCK_GROUPS.filter(g => g.status === 'active');
+  const closedGroups = MOCK_GROUPS.filter(g => g.status === 'terminated' || (g.status as string) === 'closed' || (g.status as string) === 'suspended');
 
-  const filteredGroups = filter === 'all'
-    ? MOCK_GROUPS
-    : MOCK_GROUPS.filter(g => g.category.toLowerCase() === filter);
+  const displayedGroups = groupTab === 'active' ? activeGroups : closedGroups;
 
   return (
     <>
       <AppHeader />
       <div className="page-content" style={{ paddingTop: 10, paddingBottom: 110 }}>
 
-        {/* ── Simplified & Clean Vault Overview Header ── */}
+        {/* ── Bar-like Segmented Switcher (Active Groups vs Closed Groups) ── */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(239, 246, 255, 0.85) 0%, rgba(255, 255, 255, 0.90) 100%)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          borderRadius: 22,
-          padding: '18px 20px',
-          border: '1.5px solid rgba(255, 255, 255, 0.95)',
-          boxShadow: '0 8px 30px rgba(37, 99, 235, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.95)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 18,
+          background: 'rgba(241, 245, 249, 0.95)',
+          border: '1px solid #E2E8F0',
+          borderRadius: 14,
+          padding: 3,
+          marginBottom: 16,
+          gap: 4,
         }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#2563EB', marginBottom: 2 }}>
-              Total Pooled Liquidity
-            </div>
-            <div style={{ fontSize: 26, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.5px' }}>
-              {formatINR(totalBalance)}
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748B', marginTop: 2 }}>
-              Across {MOCK_GROUPS.length} active pools
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => setGroupTab('active')}
+            style={{
+              flex: 1,
+              padding: '9px 14px',
+              borderRadius: 11,
+              border: 'none',
+              background: groupTab === 'active' ? '#FFFFFF' : 'transparent',
+              color: groupTab === 'active' ? '#1D4ED8' : '#64748B',
+              fontWeight: groupTab === 'active' ? 700 : 600,
+              fontSize: 13,
+              cursor: 'pointer',
+              boxShadow: groupTab === 'active' ? '0 2px 8px rgba(37, 99, 235, 0.12)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              transition: 'all 0.18s ease',
+            }}
+          >
+            <span>Active Groups</span>
+            <span style={{
+              fontSize: 11,
+              fontWeight: 700,
+              padding: '1px 7px',
+              borderRadius: 99,
+              background: groupTab === 'active' ? '#EFF6FF' : '#E2E8F0',
+              color: groupTab === 'active' ? '#2563EB' : '#64748B',
+            }}>
+              {activeGroups.length}
+            </span>
+          </button>
 
           <button
-            onClick={() => navigate('/create-group')}
+            type="button"
+            onClick={() => setGroupTab('closed')}
             style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: '#2563EB',
-              color: '#FFFFFF', border: 'none', borderRadius: 14,
-              padding: '10px 16px', fontSize: 13, fontWeight: 700,
-              cursor: 'pointer', boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
-              transition: 'transform 0.15s ease',
+              flex: 1,
+              padding: '9px 14px',
+              borderRadius: 11,
+              border: 'none',
+              background: groupTab === 'closed' ? '#FFFFFF' : 'transparent',
+              color: groupTab === 'closed' ? '#1D4ED8' : '#64748B',
+              fontWeight: groupTab === 'closed' ? 700 : 600,
+              fontSize: 13,
+              cursor: 'pointer',
+              boxShadow: groupTab === 'closed' ? '0 2px 8px rgba(37, 99, 235, 0.12)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              transition: 'all 0.18s ease',
             }}
-            onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.95)')}
-            onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5v14M5 12h14" stroke="white" strokeWidth="2.8" strokeLinecap="round" />
-            </svg>
-            New Vault
+            <span>Closed Groups</span>
+            <span style={{
+              fontSize: 11,
+              fontWeight: 700,
+              padding: '1px 7px',
+              borderRadius: 99,
+              background: groupTab === 'closed' ? '#EFF6FF' : '#E2E8F0',
+              color: groupTab === 'closed' ? '#2563EB' : '#64748B',
+            }}>
+              {closedGroups.length}
+            </span>
           </button>
         </div>
 
-        {/* ── Filter Chips ── */}
-        <div style={{
-          display: 'flex', gap: 8, overflowX: 'auto',
-          scrollbarWidth: 'none', paddingBottom: 4, marginBottom: 16,
-        }}>
-          {categories.map(cat => {
-            const active = filter === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setFilter(cat.id)}
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  fontWeight: active ? 700 : 600,
-                  border: active ? '1.5px solid #2563EB' : '1px solid rgba(255, 255, 255, 0.9)',
-                  background: active ? '#2563EB' : 'rgba(255, 255, 255, 0.78)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  color: active ? '#FFFFFF' : '#64748B',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                  boxShadow: active ? '0 4px 12px rgba(37, 99, 235, 0.25)' : '0 1px 3px rgba(0,0,0,0.02)',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ── Group Cards List ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {filteredGroups.map(group => (
-            <EnhancedGroupCard
-              key={group.id}
-              group={group}
-              onClick={() => navigate(`/groups/${group.id}`)}
-            />
-          ))}
+        {/* ── Groups List ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {displayedGroups.length === 0 ? (
+            <div style={{
+              padding: '36px 16px',
+              textAlign: 'center',
+              color: '#94A3B8',
+              fontSize: 13,
+              fontWeight: 500,
+              background: 'rgba(255, 255, 255, 0.7)',
+              borderRadius: 20,
+              border: '1px solid #E2E8F0',
+            }}>
+              No {groupTab === 'active' ? 'active' : 'closed'} groups found.
+            </div>
+          ) : (
+            displayedGroups.map(group => (
+              <WalletCard
+                key={group.id}
+                group={group}
+                onClick={() => navigate(`/groups/${group.id}`)}
+              />
+            ))
+          )}
         </div>
 
         {/* ── Bottom Quick Actions (Create / Join Tiles) ── */}
@@ -217,222 +209,182 @@ export function Groups() {
   );
 }
 
-// ── God-Level Group Card ─────────────────────────────────────────
-function EnhancedGroupCard({ group, onClick }: { group: Group; onClick: () => void }) {
-  const usedPct = pct(group.balance, group.cap);
-  const remaining = group.cap - group.balance;
-  const isHealthy = usedPct >= 50;
+function WalletCard({ group, onClick }: { group: Group; onClick: () => void }) {
+  const isActive = group.status === 'active';
+
+  const MONO_COLORS = [
+    'linear-gradient(135deg, #93C5FD, #60A5FA)',
+    'linear-gradient(135deg, #C4B5FD, #A78BFA)',
+    'linear-gradient(135deg, #6EE7B7, #34D399)',
+    'linear-gradient(135deg, #A5B4FC, #818CF8)',
+  ];
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onClick()}
       style={{
-        position: 'relative',
-        background: `linear-gradient(145deg, ${group.cardBg}99 0%, rgba(255, 255, 255, 0.88) 60%, ${group.cardBg}66 100%)`,
-        backdropFilter: 'blur(16px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
         borderRadius: 22,
-        border: `1.5px solid ${group.cardBorder}`,
-        boxShadow: `0 8px 24px -2px ${group.themeColor}20, inset 0 1px 1.5px rgba(255, 255, 255, 0.95)`,
         cursor: 'pointer',
+        position: 'relative',
         overflow: 'hidden',
-        transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease',
+        background: isActive
+          ? `linear-gradient(140deg, ${group.themeColor || '#2563EB'} 0%, #2454D9 55%, #1E3FA8 100%)`
+          : 'linear-gradient(140deg, #64748B 0%, #475569 60%, #334155 100%)',
+        boxShadow: isActive
+          ? `0 10px 26px ${group.themeColor || '#2563EB'}35, 0 2px 6px rgba(15,23,42,0.12)`
+          : '0 8px 20px rgba(71,85,105,0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.16)',
+        transition: 'transform 0.2s cubic-bezier(.22,.68,0,1.2), box-shadow 0.2s ease',
+        padding: '16px 18px 15px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        userSelect: 'none',
+        opacity: isActive ? 1 : 0.88,
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.transform = 'translateY(-3px)';
-        e.currentTarget.style.boxShadow = `0 14px 30px ${group.themeColor}25, 0 2px 6px rgba(0,0,0,0.03)`;
+        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = `0 6px 22px ${group.themeColor}15, 0 1px 3px rgba(0, 0, 0, 0.02)`;
+        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
       }}
     >
-      {/* Top subtle color indicator accent */}
+      {/* Sheen overlay */}
       <div style={{
-        height: 3.5,
-        background: `linear-gradient(90deg, ${group.themeColor}, ${group.cardBorder}, transparent)`,
+        position: 'absolute', top: 0, left: 0, right: 0,
+        height: 48,
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 100%)',
+        borderRadius: '22px 22px 0 0',
+        pointerEvents: 'none',
       }} />
 
-      <div style={{ padding: '16px 18px 18px' }}>
-        {/* Row 1: Squircle Badge + Name & Category + Balance */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
-          {/* Enhanced Squircle Icon Badge */}
+      {/* TOP ROW: Simple Group Name + Active Members + Coin Button */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0, marginRight: 12 }}>
+          {/* Simple group name */}
           <div style={{
-            width: 50, height: 50, borderRadius: 16, flexShrink: 0,
-            background: '#FFFFFF',
-            border: `1.5px solid ${group.cardBorder}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: `0 4px 14px ${group.themeColor}22`,
+            fontSize: 17,
+            fontWeight: 800,
+            color: '#FFFFFF',
+            letterSpacing: '-0.3px',
+            lineHeight: 1.2,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}>
-            <EmojiBadge name={group.icon} bg="transparent" color={group.themeColor} size={28} shape="none" />
+            {group.name}
           </div>
 
-          {/* Group Name & Tags */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{
-              fontSize: 16, fontWeight: 800,
-              color: '#0F172A', letterSpacing: '-0.2px',
-              lineHeight: 1.25,
-            }}>
-              {group.name}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-              <span style={{
-                fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-                background: group.cardBg, color: group.themeColor,
-                padding: '2px 7px', borderRadius: 6,
-                border: `1px solid ${group.cardBorder}`,
-              }}>
-                {group.category}
-              </span>
-
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 3,
-                fontSize: 10, fontWeight: 600, color: '#64748B',
-                background: '#F8FAFC', padding: '2px 6px', borderRadius: 6,
-                border: '1px solid #E2E8F0',
-              }}>
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="11" width="18" height="11" rx="2" stroke="#64748B" strokeWidth="2.5" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#64748B" strokeWidth="2.5" />
-                </svg>
-                Multi-Sig
-              </span>
-            </div>
-          </div>
-
-          {/* Balance & Cap */}
-          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div style={{
-              fontSize: 18, fontWeight: 900,
-              color: '#0F172A', letterSpacing: '-0.4px',
-            }}>
-              {formatINR(group.balance)}
-            </div>
-            <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 500, marginTop: 1 }}>
-              / {formatINR(group.cap)} cap
-            </div>
+          {/* Active members */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5 }}>
+            {isActive ? (
+              <>
+                <span style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: '#34D399',
+                  boxShadow: '0 0 8px #34D399',
+                  display: 'inline-block',
+                }} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#BFDBFE' }}>
+                  {group.activeMemberCount || group.members.length} active members
+                </span>
+                {/* Member avatars */}
+                <div style={{ display: 'flex', alignItems: 'center', marginLeft: 4 }}>
+                  {group.members.slice(0, 3).map((m, i) => (
+                    <div
+                      key={m.id || i}
+                      title={m.name}
+                      style={{
+                        width: 18, height: 18, borderRadius: '50%',
+                        background: MONO_COLORS[i % MONO_COLORS.length],
+                        border: '1.5px solid rgba(255,255,255,0.85)',
+                        marginLeft: i === 0 ? 0 : -5,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#1E3A8A', fontSize: 7.5, fontWeight: 900,
+                        zIndex: 3 - i,
+                      }}
+                    >
+                      {m.name.charAt(0).toUpperCase()}
+                    </div>
+                  ))}
+                  {group.members.length > 3 && (
+                    <span style={{ fontSize: 9.5, fontWeight: 700, color: '#FFFFFF', marginLeft: 4 }}>
+                      +{group.members.length - 3}
+                    </span>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <span style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: '#94A3B8',
+                  display: 'inline-block',
+                }} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#CBD5E1' }}>
+                  0 active members
+                </span>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Luminous Glowing Progress Bar */}
+        {/* Coin / Wallet Button */}
         <div style={{
-          height: 7, background: '#F1F5F9',
-          borderRadius: 99, overflow: 'hidden',
-          marginBottom: 10,
+          width: 36, height: 36,
+          borderRadius: 12,
+          background: 'rgba(255,255,255,0.16)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+          flexShrink: 0,
         }}>
           <div style={{
-            height: '100%',
-            width: `${usedPct}%`,
-            background: `linear-gradient(90deg, ${group.themeColor}CC 0%, ${group.themeColor} 100%)`,
-            borderRadius: 99,
-            transition: 'width 0.5s ease',
-            boxShadow: `0 0 10px ${group.themeColor}66`,
+            width: 16, height: 16,
+            borderRadius: '50%',
+            border: '3.5px solid rgba(255,255,255,0.9)',
           }} />
         </div>
+      </div>
 
-        {/* Metrics Row: % funded | Spent | Remaining */}
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: 14,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <div style={{
-              width: 6, height: 6, borderRadius: '50%',
-              background: group.themeColor,
-              boxShadow: `0 0 6px ${group.themeColor}`,
-            }} />
-            <span style={{ fontSize: 12, color: group.themeColor, fontWeight: 800 }}>
-              {usedPct}% funded
+      {/* BOTTOM ROW: Message of the user */}
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        padding: '9px 12px',
+        borderRadius: 13,
+        background: 'rgba(255, 255, 255, 0.12)',
+        backdropFilter: 'blur(6px)',
+        border: '1px solid rgba(255, 255, 255, 0.14)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0, flex: 1 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: isActive ? '#93C5FD' : '#CBD5E1', flexShrink: 0 }}>
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <div style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>
+            <span style={{ fontWeight: 700, color: isActive ? '#BFDBFE' : '#E2E8F0', marginRight: 5 }}>
+              {group.latestMessage.sender}:
+            </span>
+            <span style={{ color: '#FFFFFF', fontWeight: 500, opacity: 0.95 }}>
+              "{group.latestMessage.text}"
             </span>
           </div>
-
-          <div style={{ fontSize: 11, color: '#64748B', fontWeight: 500 }}>
-            {formatINR(group.spentThisMonth)} spent
-          </div>
-
-          <span style={{
-            fontSize: 11, fontWeight: 700,
-            color: isHealthy ? '#059669' : '#7C3AED',
-            background: isHealthy ? '#ECFDF5' : '#F5F3FF',
-            padding: '2.5px 8px', borderRadius: 8,
-            border: `1px solid ${isHealthy ? '#A7F3D0' : '#DDD6FE'}`,
-          }}>
-            {formatINR(remaining)} left
-          </span>
         </div>
-
-        {/* Bottom Row: Monogram Initials Monograms (NO photos) + Open CTA */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          paddingTop: 12,
-          borderTop: '1px solid #F1F5F9',
+        <span style={{
+          fontSize: 10.5,
+          fontWeight: 600,
+          color: 'rgba(255, 255, 255, 0.65)',
+          flexShrink: 0,
         }}>
-          {/* Monogram Circles */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginRight: 8 }}>
-              {group.members.slice(0, 4).map((m, i) => (
-                <div
-                  key={m.id || i}
-                  title={m.name}
-                  style={{
-                    width: 25,
-                    height: 25,
-                    borderRadius: '50%',
-                    background: MONOGRAM_COLORS[i % MONOGRAM_COLORS.length],
-                    border: '2px solid #FFFFFF',
-                    marginLeft: i === 0 ? 0 : -7,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#FFFFFF',
-                    fontSize: 10,
-                    fontWeight: 800,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                    zIndex: 4 - i,
-                  }}
-                >
-                  {m.name.charAt(0).toUpperCase()}
-                </div>
-              ))}
-              {group.members.length > 4 && (
-                <div style={{
-                  width: 25,
-                  height: 25,
-                  borderRadius: '50%',
-                  background: '#E2E8F0',
-                  border: '2px solid #FFFFFF',
-                  marginLeft: -7,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#475569',
-                  fontSize: 9.5,
-                  fontWeight: 700,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                }}>
-                  +{group.members.length - 4}
-                </div>
-              )}
-            </div>
-            <span style={{ fontSize: 11.5, color: '#64748B', fontWeight: 600 }}>
-              {group.members.length} members
-            </span>
-          </div>
-
-          {/* Subtle View Vault Button */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 4,
-            fontSize: 12, fontWeight: 700,
-            color: group.themeColor,
-          }}>
-            <span>Open Vault</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        </div>
+          {group.latestMessage.time}
+        </span>
       </div>
     </div>
   );

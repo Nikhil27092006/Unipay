@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import {
@@ -35,8 +35,26 @@ export function Dashboard() {
     }, 750);
   };
 
+  const [isLaunchingSend, setIsLaunchingSend] = useState(false);
+  const [sendLaunchCount, setSendLaunchCount] = useState(0);
+  const [groupTab, setGroupTab] = useState<'active' | 'closed'>('active');
+
+  const activeGroups = MOCK_GROUPS.filter(g => g.status === 'active');
+  const closedGroups = MOCK_GROUPS.filter(g => g.status === 'terminated' || (g.status as string) === 'closed' || (g.status as string) === 'suspended');
+  const displayedGroups = groupTab === 'active' ? activeGroups : closedGroups;
+
   const handleOpenPaymentHub = () => {
-    window.dispatchEvent(new CustomEvent('cowallet-open-payment-modal'));
+    if (isLaunchingSend) return;
+    setIsLaunchingSend(true);
+    setSendLaunchCount(prev => prev + 1);
+
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('cowallet-open-payment-modal'));
+    }, 500);
+
+    setTimeout(() => {
+      setIsLaunchingSend(false);
+    }, 850);
   };
 
   const handleCopyLink = () => {
@@ -63,45 +81,244 @@ export function Dashboard() {
         </div>
         {/* ── Your Groups ── */}
         <section style={{ marginBottom: 20 }}>
-          <div className="section-header">
+          <div className="section-header" style={{ marginBottom: 10 }}>
             <h2 className="section-title">Your Groups</h2>
             <button className="section-link" onClick={() => navigate('/groups')}>See all</button>
           </div>
 
-          {/* Horizontal scroll */}
+          {/* Bar-like Segmented Switcher (Active Groups vs Closed Groups) */}
           <div style={{
             display: 'flex',
-            gap: 12,
-            overflowX: 'auto',
+            background: 'rgba(241, 245, 249, 0.9)',
+            border: '1px solid #E2E8F0',
+            borderRadius: 14,
+            padding: 3,
+            marginBottom: 12,
+            gap: 4,
+          }}>
+            <button
+              type="button"
+              onClick={() => setGroupTab('active')}
+              style={{
+                flex: 1,
+                padding: '8px 14px',
+                borderRadius: 11,
+                border: 'none',
+                background: groupTab === 'active' ? '#FFFFFF' : 'transparent',
+                color: groupTab === 'active' ? '#1D4ED8' : '#64748B',
+                fontWeight: groupTab === 'active' ? 700 : 600,
+                fontSize: 12.5,
+                cursor: 'pointer',
+                boxShadow: groupTab === 'active' ? '0 2px 8px rgba(37, 99, 235, 0.12)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                transition: 'all 0.18s ease',
+              }}
+            >
+              <span>Active Groups</span>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: '1px 7px',
+                borderRadius: 99,
+                background: groupTab === 'active' ? '#EFF6FF' : '#E2E8F0',
+                color: groupTab === 'active' ? '#2563EB' : '#64748B',
+              }}>
+                {activeGroups.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setGroupTab('closed')}
+              style={{
+                flex: 1,
+                padding: '8px 14px',
+                borderRadius: 11,
+                border: 'none',
+                background: groupTab === 'closed' ? '#FFFFFF' : 'transparent',
+                color: groupTab === 'closed' ? '#1D4ED8' : '#64748B',
+                fontWeight: groupTab === 'closed' ? 700 : 600,
+                fontSize: 12.5,
+                cursor: 'pointer',
+                boxShadow: groupTab === 'closed' ? '0 2px 8px rgba(37, 99, 235, 0.12)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                transition: 'all 0.18s ease',
+              }}
+            >
+              <span>Closed Groups</span>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: '1px 7px',
+                borderRadius: 99,
+                background: groupTab === 'closed' ? '#EFF6FF' : '#E2E8F0',
+                color: groupTab === 'closed' ? '#2563EB' : '#64748B',
+              }}>
+                {closedGroups.length}
+              </span>
+            </button>
+          </div>
+
+          {/* Group Wallets List for selected tab */}
+          <div style={{
+            position: 'relative',
             marginLeft: -16,
             marginRight: -16,
-            paddingLeft: 16,
-            paddingRight: 16,
-            paddingBottom: 4,
-            scrollbarWidth: 'none',
+            padding: '2px 0 10px',
+            overflow: 'hidden',
           }}>
-            {MOCK_GROUPS.slice(0, 3).map(group => (
-              <GroupCard key={group.id} group={group} onClick={() => navigate(`/groups/${group.id}`)} />
-            ))}
+            <div style={{
+              position: 'relative',
+              zIndex: 1,
+              display: 'flex',
+              gap: 14,
+              overflowX: 'auto',
+              padding: '8px 16px 14px',
+              scrollbarWidth: 'none',
+            }}>
+              {displayedGroups.length === 0 ? (
+                <div style={{ padding: '24px 16px', color: '#94A3B8', fontSize: 13, fontWeight: 500 }}>
+                  No {groupTab === 'active' ? 'active' : 'closed'} groups found.
+                </div>
+              ) : (
+                displayedGroups.map(group => (
+                  <WalletGroupCard key={group.id} group={group} onClick={() => navigate(`/groups/${group.id}`)} />
+                ))
+              )}
+            </div>
           </div>
         </section>
 
         {/* ── Quick Actions (App White & Blue Theme: Pay, Add Money, Create, Scan, Join) ── */}
         <div className="feature-actions-bar">
-          {/* 1. Pay (App Primary Light / Blue Accent Squircle) */}
-          <button
-            className="feature-action-btn feature-action-btn--pay"
-            onClick={handleOpenPaymentHub}
-            aria-label="Pay"
-          >
-            <div className="feature-btn-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translate(1px, -1px)' }}>
-                <path d="M22 2L11 13" />
-                <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-              </svg>
-            </div>
-            <span className="feature-btn-label">Pay</span>
-          </button>
+          {/* 1. Send (App Primary Light / Blue Accent Squircle with Launch Animation) */}
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            {/* Neon Shockwave Ring on Launch */}
+            {isLaunchingSend && (
+              <div
+                key={`dash-shock-${sendLaunchCount}`}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  width: 52,
+                  height: 52,
+                  borderRadius: 14,
+                  border: '2px solid #38BDF8',
+                  pointerEvents: 'none',
+                  zIndex: 99990,
+                  animation: 'planeShockwave 0.55s cubic-bezier(0.1, 0.8, 0.3, 1) forwards',
+                  boxShadow: '0 0 24px rgba(56, 189, 248, 0.8)',
+                }}
+              />
+            )}
+
+            {/* Confetti Particles Exploding Outward */}
+            {isLaunchingSend && (
+              <>
+                <div style={{ position: 'absolute', left: '50%', top: '50%', width: 7, height: 7, borderRadius: '50%', background: '#2563EB', pointerEvents: 'none', zIndex: 99998, boxShadow: '0 0 8px #2563EB', animation: 'planeConfetti 0.65s cubic-bezier(0.15, 0.85, 0.35, 1) forwards', '--tx': '-38px', '--ty': '-65px', '--rot': '45deg' } as React.CSSProperties} />
+                <div style={{ position: 'absolute', left: '50%', top: '50%', width: 6, height: 6, borderRadius: '2px', background: '#38BDF8', pointerEvents: 'none', zIndex: 99998, boxShadow: '0 0 8px #38BDF8', animation: 'planeConfetti 0.65s cubic-bezier(0.15, 0.85, 0.35, 1) 20ms forwards', '--tx': '45px', '--ty': '-70px', '--rot': '-35deg' } as React.CSSProperties} />
+                <div style={{ position: 'absolute', left: '50%', top: '50%', width: 8, height: 8, borderRadius: '50%', background: '#6366F1', pointerEvents: 'none', zIndex: 99998, boxShadow: '0 0 8px #6366F1', animation: 'planeConfetti 0.65s cubic-bezier(0.15, 0.85, 0.35, 1) 10ms forwards', '--tx': '-68px', '--ty': '-38px', '--rot': '90deg' } as React.CSSProperties} />
+                <div style={{ position: 'absolute', left: '50%', top: '50%', width: 7, height: 7, borderRadius: '50%', background: '#10B981', pointerEvents: 'none', zIndex: 99998, boxShadow: '0 0 8px #10B981', animation: 'planeConfetti 0.65s cubic-bezier(0.15, 0.85, 0.35, 1) 30ms forwards', '--tx': '70px', '--ty': '-40px', '--rot': '-60deg' } as React.CSSProperties} />
+                <div style={{ position: 'absolute', left: '50%', top: '50%', width: 6, height: 6, borderRadius: '50%', background: '#F59E0B', pointerEvents: 'none', zIndex: 99998, boxShadow: '0 0 8px #F59E0B', animation: 'planeConfetti 0.65s cubic-bezier(0.15, 0.85, 0.35, 1) 15ms forwards', '--tx': '-20px', '--ty': '-90px', '--rot': '120deg' } as React.CSSProperties} />
+                <div style={{ position: 'absolute', left: '50%', top: '50%', width: 8, height: 8, borderRadius: '2px', background: '#2563EB', pointerEvents: 'none', zIndex: 99998, boxShadow: '0 0 8px #2563EB', animation: 'planeConfetti 0.65s cubic-bezier(0.15, 0.85, 0.35, 1) 25ms forwards', '--tx': '25px', '--ty': '-95px', '--rot': '-90deg' } as React.CSSProperties} />
+                <div style={{ position: 'absolute', left: '50%', top: '50%', width: 6, height: 6, borderRadius: '50%', background: '#00D2FF', pointerEvents: 'none', zIndex: 99998, boxShadow: '0 0 8px #00D2FF', animation: 'planeConfetti 0.65s cubic-bezier(0.15, 0.85, 0.35, 1) 35ms forwards', '--tx': '-55px', '--ty': '-80px', '--rot': '180deg' } as React.CSSProperties} />
+                <div style={{ position: 'absolute', left: '50%', top: '50%', width: 7, height: 7, borderRadius: '50%', background: '#EC4899', pointerEvents: 'none', zIndex: 99998, boxShadow: '0 0 8px #EC4899', animation: 'planeConfetti 0.65s cubic-bezier(0.15, 0.85, 0.35, 1) 10ms forwards', '--tx': '60px', '--ty': '-85px', '--rot': '-140deg' } as React.CSSProperties} />
+              </>
+            )}
+
+            {/* Flying Paper Plane Shooting Across Screen */}
+            {isLaunchingSend && (
+              <div
+                key={`dash-flight-${sendLaunchCount}`}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  pointerEvents: 'none',
+                  zIndex: 99999,
+                  animation: 'planeFlightShoot 0.75s cubic-bezier(0.2, 0.85, 0.25, 1) forwards',
+                }}
+              >
+                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <svg
+                    width="34"
+                    height="34"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    style={{ filter: 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.95))' }}
+                  >
+                    <path
+                      d="M22 2L15 22L11 13L2 9L22 2Z"
+                      fill="#FFFFFF"
+                      stroke="#2563EB"
+                      strokeWidth="1.5"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M22 2L11 13"
+                      stroke="#1D4ED8"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {/* Vertical Exhaust Contrail */}
+                  <div
+                    style={{
+                      width: '4px',
+                      height: '65px',
+                      background: 'linear-gradient(180deg, #FFFFFF 0%, #38BDF8 40%, rgba(56, 189, 248, 0.4) 80%, transparent 100%)',
+                      borderRadius: '999px',
+                      marginTop: '-4px',
+                      boxShadow: '0 0 12px rgba(56, 189, 248, 0.95)',
+                      animation: 'planeContrailVertical 0.75s ease-out forwards',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <button
+              className="feature-action-btn feature-action-btn--pay"
+              onClick={handleOpenPaymentHub}
+              aria-label="Send"
+              style={{
+                position: 'relative',
+                animation: isLaunchingSend ? 'planeNavRumble 0.35s ease-in-out, planeNavGlow 0.85s ease-out' : 'none',
+              }}
+            >
+              <div className="feature-btn-icon">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    transform: isLaunchingSend
+                      ? 'translate(1px, -1px) scale(0.6) rotate(-20deg)'
+                      : 'translate(1px, -1px)',
+                    opacity: isLaunchingSend ? 0.3 : 1,
+                    transition: 'transform 0.2s ease, opacity 0.2s ease',
+                  }}
+                >
+                  <path d="M22 2L11 13" />
+                  <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+                </svg>
+              </div>
+              <span className="feature-btn-label">Send</span>
+            </button>
+          </div>
 
           {/* 2. Add Money (White Squircle) */}
           <button
@@ -202,7 +419,7 @@ export function Dashboard() {
 
           {/* Frosted Translucent Reward Card matching the reference image */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(224, 242, 254, 0.65) 0%, rgba(255, 255, 255, 0.8) 45%, rgba(243, 232, 255, 0.65) 100%)',
+            background: 'linear-gradient(135deg, rgba(224, 242, 254, 0.65) 0%, rgba(255, 255, 255, 0.8) 45%, rgba(239, 246, 255, 0.65) 100%)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             borderRadius: 22,
@@ -218,7 +435,7 @@ export function Dashboard() {
                 width: 52,
                 height: 52,
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #E0F2FE 0%, #EDE9FE 100%)',
+                background: 'linear-gradient(135deg, #E0F2FE 0%, #EFF6FF 100%)',
                 border: '1.5px solid rgba(255, 255, 255, 0.95)',
                 boxShadow: '0 4px 14px rgba(99, 102, 241, 0.16)',
                 display: 'flex',
@@ -228,42 +445,42 @@ export function Dashboard() {
               }}>
                 <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
                   <defs>
-                    <linearGradient id="giftBodyPurple" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#A855F7" />
-                      <stop offset="100%" stopColor="#7C3AED" />
+                    <linearGradient id="giftBodyBlue1" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#3B82F6" />
+                      <stop offset="100%" stopColor="#1D4ED8" />
                     </linearGradient>
-                    <linearGradient id="giftBodyBlue" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#38BDF8" />
+                    <linearGradient id="giftBodyBlue2" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#60A5FA" />
                       <stop offset="100%" stopColor="#0284C7" />
                     </linearGradient>
-                    <linearGradient id="giftRibbonGreen" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#4ADE80" />
-                      <stop offset="50%" stopColor="#16A34A" />
-                      <stop offset="100%" stopColor="#15803D" />
+                    <linearGradient id="giftRibbonBlue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#DBEAFE" />
+                      <stop offset="50%" stopColor="#3B82F6" />
+                      <stop offset="100%" stopColor="#1D4ED8" />
                     </linearGradient>
                   </defs>
 
                   {/* Sparkles */}
                   <path d="M7 6L7.8 8.5L10.3 9.3L7.8 10.1L7 12.6L6.2 10.1L3.7 9.3L6.2 8.5L7 6Z" fill="#38BDF8" opacity="0.9" />
-                  <circle cx="18" cy="4" r="1.5" fill="#16A34A" opacity="0.95" />
-                  <path d="M29 7L29.6 9L31.6 9.6L29.6 10.2L29 12.2L28.4 10.2L26.4 9.6L28.4 9L29 7Z" fill="#A855F7" opacity="0.9" />
+                  <circle cx="18" cy="4" r="1.5" fill="#3B82F6" opacity="0.95" />
+                  <path d="M29 7L29.6 9L31.6 9.6L29.6 10.2L29 12.2L28.4 10.2L26.4 9.6L28.4 9L29 7Z" fill="#60A5FA" opacity="0.9" />
 
                   {/* Box Body */}
-                  <path d="M8 17H17V27C17 28.1 16.1 29 15 29H10C8.9 29 8 28.1 8 27V17Z" fill="url(#giftBodyPurple)" />
-                  <path d="M19 17H28V27C28 28.1 27.1 29 26 29H21C19.9 29 19 28.1 19 27V17Z" fill="url(#giftBodyBlue)" />
+                  <path d="M8 17H17V27C17 28.1 16.1 29 15 29H10C8.9 29 8 28.1 8 27V17Z" fill="url(#giftBodyBlue1)" />
+                  <path d="M19 17H28V27C28 28.1 27.1 29 26 29H21C19.9 29 19 28.1 19 27V17Z" fill="url(#giftBodyBlue2)" />
 
                   {/* Vertical Ribbon */}
-                  <rect x="16.5" y="17" width="3" height="12" fill="url(#giftRibbonGreen)" />
+                  <rect x="16.5" y="17" width="3" height="12" fill="url(#giftRibbonBlue)" />
 
                   {/* Box Lids */}
-                  <path d="M6 14C6 13.4 6.4 13 7 13H17V17H6V14Z" fill="#8B5CF6" />
+                  <path d="M6 14C6 13.4 6.4 13 7 13H17V17H6V14Z" fill="#60A5FA" />
                   <path d="M19 13H29C29.6 13 30 13.4 30 14V17H19V13Z" fill="#0EA5E9" />
-                  <rect x="16.5" y="13" width="3" height="4" fill="url(#giftRibbonGreen)" />
+                  <rect x="16.5" y="13" width="3" height="4" fill="url(#giftRibbonBlue)" />
 
                   {/* Ribbon Bow on top */}
-                  <path d="M17 13C17 13 13.5 8.5 11 10C8.8 11.2 11 13 17 13Z" fill="#22C55E" stroke="#16A34A" strokeWidth="0.8" />
-                  <path d="M19 13C19 13 22.5 8.5 25 10C27.2 11.2 25 13 19 13Z" fill="#22C55E" stroke="#16A34A" strokeWidth="0.8" />
-                  <circle cx="18" cy="13" r="2.2" fill="#16A34A" />
+                  <path d="M17 13C17 13 13.5 8.5 11 10C8.8 11.2 11 13 17 13Z" fill="#3B82F6" stroke="#1D4ED8" strokeWidth="0.8" />
+                  <path d="M19 13C19 13 22.5 8.5 25 10C27.2 11.2 25 13 19 13Z" fill="#3B82F6" stroke="#1D4ED8" strokeWidth="0.8" />
+                  <circle cx="18" cy="13" r="2.2" fill="#1D4ED8" />
                 </svg>
               </div>
 
@@ -446,14 +663,12 @@ export function Dashboard() {
           </div>
         </section>
 
-        {/* ── Personal Payment History ── */}
-        <section style={{ marginBottom: 24 }}>
-          <div className="section-header">
-            <h2 className="section-title">My Payment History</h2>
-            <button className="section-link" onClick={() => navigate('/activity')}>See all</button>
-          </div>
-          <PersonalHistory payments={MOCK_PERSONAL_PAYMENTS} />
-        </section>
+        {/* ── Payment History (Separated: Personal UPI & Group Vaults) ── */}
+        <PaymentHistorySections
+          payments={MOCK_PERSONAL_PAYMENTS}
+          onSeeAll={() => navigate('/activity')}
+          onOpenGroup={(groupId) => navigate(`/groups/${groupId}`)}
+        />
 
         {/* ── Offers ── */}
         <section style={{ marginBottom: 8 }}>
@@ -484,13 +699,11 @@ export function Dashboard() {
             onClick={handleFetchBalance}
             style={{
               width: '100%',
-              background: 'rgba(255, 255, 255, 0.88)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              background: '#FFFFFF',
               borderRadius: 20,
               padding: '16px 20px',
-              border: '1.5px solid rgba(255, 255, 255, 0.95)',
-              boxShadow: '0 8px 28px rgba(37, 99, 235, 0.07), 0 2px 6px rgba(15, 23, 42, 0.03)',
+              border: '1px solid #E5E7EB',
+              boxShadow: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -503,11 +716,11 @@ export function Dashboard() {
                 width: 40,
                 height: 40,
                 borderRadius: 14,
-                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                background: '#2563EB',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.28)',
+                boxShadow: 'none',
                 flexShrink: 0,
               }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -576,7 +789,7 @@ export function Dashboard() {
                   <div style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>HDFC Bank •••• 4921</div>
                   <div style={{ fontSize: 11, color: '#2563EB', fontWeight: 700 }}>{CURRENT_USER.upiId}</div>
                 </div>
-                <div style={{ marginLeft: 'auto', background: '#DCFCE7', border: '1px solid #86EFAC', borderRadius: 8, padding: '3px 8px', fontSize: 10.5, fontWeight: 800, color: '#16A34A' }}>
+                <div style={{ marginLeft: 'auto', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '3px 8px', fontSize: 10.5, fontWeight: 800, color: '#2563EB' }}>
                   NPCI Verified
                 </div>
               </div>
@@ -752,154 +965,257 @@ export function Dashboard() {
   );
 }
 
-// ── Group Card ──
-function GroupCard({ group, onClick }: { group: Group; onClick: () => void }) {
+function WalletGroupCard({ group, onClick }: { group: Group; onClick: () => void }) {
+  const [isHovered, setIsHovered] = useState(false);
   const usedPct = pct(group.balance, group.cap);
 
   const MONO_COLORS = [
-    'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-    'linear-gradient(135deg, #8B5CF6, #6D28D9)',
-    'linear-gradient(135deg, #10B981, #047857)',
-    'linear-gradient(135deg, #6366F1, #4F46E5)',
+    'linear-gradient(135deg, #93C5FD, #60A5FA)',
+    'linear-gradient(135deg, #C4B5FD, #A78BFA)',
+    'linear-gradient(135deg, #6EE7B7, #34D399)',
+    'linear-gradient(135deg, #A5B4FC, #818CF8)',
   ];
 
   return (
     <div
-      className="group-card"
-      onClick={onClick}
       role="button"
       tabIndex={0}
+      onClick={onClick}
+      onKeyDown={e => e.key === 'Enter' && onClick()}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         flexShrink: 0,
-        width: 178,
-        borderRadius: 22,
-        padding: '16px 14px',
-        cursor: 'pointer',
-        background: `linear-gradient(145deg, ${group.cardBg}99 0%, rgba(255, 255, 255, 0.88) 65%, ${group.cardBg}66 100%)`,
-        backdropFilter: 'blur(16px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-        border: `1.5px solid ${group.cardBorder}`,
-        boxShadow: `0 8px 24px -2px ${group.themeColor}20, inset 0 1px 1.5px rgba(255, 255, 255, 0.95)`,
+        width: 278,
+        height: 162,
         position: 'relative',
-        overflow: 'hidden',
-        transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.transform = 'translateY(-3px)';
-        e.currentTarget.style.boxShadow = `0 12px 28px ${group.themeColor}25, 0 2px 6px rgba(0,0,0,0.04)`;
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = `0 6px 20px ${group.themeColor}15, 0 1px 3px rgba(0, 0, 0, 0.02)`;
+        cursor: 'pointer',
+        userSelect: 'none',
+        transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+        transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
       }}
     >
-      {/* Top subtle color indicator line */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0,
-        height: 3,
-        background: `linear-gradient(90deg, ${group.themeColor}, ${group.cardBorder}, transparent)`,
-      }} />
+      {/* ─── Wallet Body Shadow Depth Layer ─── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: 3,
+          left: 3,
+          width: 248,
+          height: 156,
+          borderRadius: 26,
+          background: '#0F172A',
+          opacity: 0.35,
+          filter: 'blur(4px)',
+          zIndex: 1,
+        }}
+      />
 
-      {/* Top row: Squircle icon + chevron */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{
-          width: 44, height: 44, borderRadius: 14,
-          background: '#FFFFFF',
-          border: `1.5px solid ${group.cardBorder}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: `0 3px 10px ${group.themeColor}20`,
-        }}>
-          <EmojiBadge
-            name={group.icon}
-            bg="transparent"
-            color={group.themeColor}
-            size={24}
-            shape="none"
-          />
-        </div>
-
-        <div style={{
-          width: 26, height: 26, borderRadius: '50%',
-          background: '#F8FAFC', border: '1px solid #E2E8F0',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: group.themeColor,
-        }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
-
-      {/* Name */}
-      <div style={{
-        fontSize: 14, fontWeight: 800,
-        color: '#0F172A', marginBottom: 3,
-        letterSpacing: '-0.2px', lineHeight: 1.25,
-      }}>
-        {group.name}
-      </div>
-
-      {/* Balance / Cap */}
-      <div style={{ fontSize: 14.5, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.3px', marginBottom: 2 }}>
-        {formatINR(group.balance)}
-      </div>
-      <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 500, marginBottom: 10 }}>
-        / {formatINR(group.cap)} cap
-      </div>
-
-      {/* Luminous Progress bar */}
-      <div style={{
-        height: 6, background: '#F1F5F9',
-        borderRadius: 99, overflow: 'hidden',
-        marginBottom: 10,
-      }}>
+      {/* ─── Main Wallet Body (holds and displays all group info) ─── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: 254,
+          height: 160,
+          borderRadius: 26,
+          background: `linear-gradient(145deg, ${group.themeColor || '#2563EB'} 0%, #1D4ED8 52%, #1E40AF 100%)`,
+          boxShadow: isHovered
+            ? '0 16px 36px rgba(30, 64, 175, 0.42), 0 4px 10px rgba(15, 23, 42, 0.18)'
+            : '0 10px 24px rgba(30, 64, 175, 0.30), 0 2px 6px rgba(15, 23, 42, 0.12)',
+          border: '1px solid rgba(255, 255, 255, 0.18)',
+          overflow: 'hidden',
+          zIndex: 2,
+          transition: 'box-shadow 0.22s ease',
+          padding: '13px 44px 13px 18px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Top Rim/Lip Sheen (wallet opening curve) */}
         <div
+          aria-hidden="true"
           style={{
-            height: '100%',
-            width: `${usedPct}%`,
-            background: `linear-gradient(90deg, ${group.themeColor}CC, ${group.themeColor})`,
-            borderRadius: 99,
-            boxShadow: `0 0 8px ${group.themeColor}66`,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 40,
+            borderRadius: '25px 25px 16px 16px',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.03) 100%)',
+            borderBottom: '1px solid rgba(255,255,255,0.10)',
+            pointerEvents: 'none',
           }}
         />
+
+        {/* 1. Top Section: Label + Group Name */}
+        <div style={{ position: 'relative', zIndex: 3 }}>
+          <div style={{
+            fontSize: 9.5,
+            fontWeight: 700,
+            letterSpacing: '0.8px',
+            textTransform: 'uppercase',
+            color: '#BFDBFE',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+          }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#93C5FD', display: 'inline-block' }} />
+            GROUP VAULT
+          </div>
+          <div style={{
+            fontSize: 16.5,
+            fontWeight: 800,
+            color: '#FFFFFF',
+            letterSpacing: '-0.3px',
+            lineHeight: 1.2,
+            marginTop: 2,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: 175,
+          }}>
+            {group.name}
+          </div>
+        </div>
+
+        {/* 2. Middle Section: Balance + Cap + Progress Bar */}
+        <div style={{ position: 'relative', zIndex: 3, marginTop: -2 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{ fontSize: 20, fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.5px' }}>
+              {formatINR(group.balance)}
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(219, 234, 254, 0.82)' }}>
+              / {formatINR(group.cap)} cap
+            </span>
+          </div>
+
+          {/* Progress bar */}
+          <div style={{
+            height: 5,
+            background: 'rgba(255, 255, 255, 0.20)',
+            borderRadius: 99,
+            overflow: 'hidden',
+            marginTop: 7,
+            maxWidth: 180,
+          }}>
+            <div style={{
+              height: '100%',
+              width: `${usedPct}%`,
+              background: 'linear-gradient(90deg, #93C5FD 0%, #FFFFFF 100%)',
+              borderRadius: 99,
+              boxShadow: '0 0 6px rgba(255,255,255,0.6)',
+            }} />
+          </div>
+        </div>
+
+        {/* 3. Bottom Row: Member Avatars Pill + % Spent */}
+        <div style={{
+          position: 'relative',
+          zIndex: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          maxWidth: 185,
+        }}>
+          {/* Member avatars badge */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            background: 'rgba(255, 255, 255, 0.14)',
+            padding: '3px 8px 3px 5px',
+            borderRadius: 99,
+            backdropFilter: 'blur(6px)',
+            border: '1px solid rgba(255, 255, 255, 0.18)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {group.members.slice(0, 3).map((m, i) => (
+                <div
+                  key={m.id || i}
+                  title={m.name}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    background: MONO_COLORS[i % MONO_COLORS.length],
+                    border: '1.5px solid rgba(255, 255, 255, 0.9)',
+                    marginLeft: i === 0 ? 0 : -5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#1E3A8A',
+                    fontSize: 8,
+                    fontWeight: 900,
+                    zIndex: 3 - i,
+                  }}
+                >
+                  {m.name.charAt(0).toUpperCase()}
+                </div>
+              ))}
+            </div>
+            {group.members.length > 3 ? (
+              <span style={{ fontSize: 9.5, fontWeight: 700, color: '#FFFFFF' }}>+{group.members.length - 3}</span>
+            ) : (
+              <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>{group.members.length} members</span>
+            )}
+          </div>
+
+          {/* % used */}
+          <div style={{
+            fontSize: 11,
+            fontWeight: 800,
+            color: '#DBEAFE',
+            background: 'rgba(255, 255, 255, 0.12)',
+            padding: '2px 7px',
+            borderRadius: 8,
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+          }}>
+            {usedPct}%
+          </div>
+        </div>
       </div>
 
-      {/* Bottom row: Monogram avatar circles + % used */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {group.members.slice(0, 3).map((m, i) => (
-            <div
-              key={m.id || i}
-              title={m.name}
-              style={{
-                width: 20, height: 20, borderRadius: '50%',
-                background: MONO_COLORS[i % MONO_COLORS.length],
-                border: '1.5px solid #FFFFFF',
-                marginLeft: i === 0 ? 0 : -6,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#FFFFFF', fontSize: 8.5, fontWeight: 800,
-                zIndex: 3 - i,
-              }}
-            >
-              {m.name.charAt(0).toUpperCase()}
-            </div>
-          ))}
-          {group.members.length > 3 && (
-            <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, marginLeft: 4 }}>
-              +{group.members.length - 3}
-            </span>
-          )}
-        </div>
-
-        <div style={{ fontSize: 11, color: group.themeColor, fontWeight: 800 }}>
-          {usedPct}%
-        </div>
+      {/* ─── Right Clasp / Snap Strap (with white ring button) ─── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: '50%',
+          transform: isHovered ? 'translateY(-50%) scale(1.04)' : 'translateY(-50%) scale(1)',
+          width: 48,
+          height: 52,
+          borderRadius: 16,
+          background: 'linear-gradient(145deg, #60A5FA 0%, #3B82F6 100%)',
+          boxShadow: '-3px 4px 14px rgba(15, 23, 42, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 4,
+          transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        {/* White ring snap button */}
+        <div style={{
+          width: 20,
+          height: 20,
+          borderRadius: '50%',
+          border: '4.5px solid #FFFFFF',
+          boxShadow: '0 2px 5px rgba(15, 23, 42, 0.22)',
+          boxSizing: 'border-box',
+        }} />
       </div>
     </div>
   );
 }
 
 // ── Quick Action Button ──
+
 function QuickAction({
   label, icon, onClick, iconStyle,
 }: {
@@ -1248,142 +1564,169 @@ function OfferCard({ offer }: { offer: typeof MOCK_OFFERS[0] }) {
   );
 }
 
-// ── Personal History (grouped accordion) ──
-function PersonalHistory({ payments }: { payments: PersonalPayment[] }) {
-  // Group by groupId (or 'personal_direct')
-  const grouped = payments.reduce<Record<string, PersonalPayment[]>>((acc, p) => {
-    const key = p.groupId || 'personal_direct';
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(p);
-    return acc;
-  }, {});
+// ── Unified Payment History (Combined: Personal UPI & Group Vaults) ──
+interface PaymentHistorySectionsProps {
+  payments: PersonalPayment[];
+  onSeeAll?: () => void;
+  onOpenGroup?: (groupId: string) => void;
+}
 
-  const groupIds = Object.keys(grouped);
-  // Default: first group open
-  const [openId, setOpenId] = useState<string | null>(groupIds[0] ?? null);
+export function PaymentHistorySections({
+  payments,
+  onSeeAll,
+  onOpenGroup,
+}: PaymentHistorySectionsProps) {
+  const [showAll, setShowAll] = useState(false);
+
+  // Interleave and sort payments naturally so Personal and Group are clubbed together
+  const combinedPayments = useMemo<PersonalPayment[]>(() => {
+    const personal = payments.filter((p: PersonalPayment) => !p.groupId);
+    const group = payments.filter((p: PersonalPayment) => !!p.groupId);
+    const result: PersonalPayment[] = [];
+    const maxLen = Math.max(personal.length, group.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (group[i]) result.push(group[i]);
+      if (personal[i]) result.push(personal[i]);
+    }
+    return result;
+  }, [payments]);
+
+  const displayedPayments = showAll ? combinedPayments : combinedPayments.slice(0, 5);
+
+  // Overall debited and credited totals
+  const totalDebit = payments
+    .filter((p: PersonalPayment) => p.dir === 'paid')
+    .reduce((sum: number, p: PersonalPayment) => sum + p.amount, 0);
+  const totalCredit = payments
+    .filter((p: PersonalPayment) => p.dir === 'received' || p.dir === 'added')
+    .reduce((sum: number, p: PersonalPayment) => sum + p.amount, 0);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {groupIds.map(gid => {
-        const items = grouped[gid];
-        const first = items[0];
-        const isOpen = openId === gid;
+    <div style={{ marginBottom: 24 }}>
+      <section>
+        {/* Unified Section Header */}
+        <div className="section-header">
+          <h2 className="section-title">Payment History</h2>
+          {onSeeAll && (
+            <button onClick={onSeeAll} className="section-link">
+              See all
+            </button>
+          )}
+        </div>
 
-        // Total spent / added for this group
-        const totalPaid = items.filter(p => p.dir === 'paid').reduce((s, p) => s + p.amount, 0);
-        const totalAdded = items.filter(p => p.dir === 'added').reduce((s, p) => s + p.amount, 0);
+        {/* Unified Glass Card */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.88)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderRadius: 24,
+          border: '1.5px solid rgba(255, 255, 255, 0.95)',
+          boxShadow: '0 10px 32px rgba(15, 23, 42, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.9)',
+          overflow: 'hidden',
+        }}>
+          {/* Card Summary Header with Debited & Credited Stats */}
+          <div style={{
+            padding: '12px 18px',
+            background: 'linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(241, 245, 249, 0.6) 100%)',
+            borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 10,
+          }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: '#334155' }}>
+              All Payments ({combinedPayments.length})
+            </div>
 
-        return (
-          <div
-            key={gid}
-            style={{
-              background: 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(16px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-              borderRadius: 22,
-              overflow: 'hidden',
-              boxShadow: '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 1.5px rgba(255, 255, 255, 0.95)',
-              border: '1.5px solid rgba(255, 255, 255, 0.95)',
-              transition: 'box-shadow 0.2s ease',
-            }}
-          >
-            {/* Group Header (tap to toggle) */}
+            <div style={{ fontSize: 11.5, color: '#64748B', fontWeight: 600 }}>
+              <span style={{ color: '#16A34A', fontWeight: 700 }}>
+                -₹{new Intl.NumberFormat('en-IN').format(totalDebit)}
+              </span> debited
+              {totalCredit > 0 && (
+                <> · <span style={{ color: '#DC2626', fontWeight: 700 }}>
+                  +₹{new Intl.NumberFormat('en-IN').format(totalCredit)}
+                </span> credited</>
+              )}
+            </div>
+          </div>
+
+          {/* Combined List of All Payments (Personal + Group Clubbed Together) */}
+          <div>
+            {displayedPayments.length === 0 ? (
+              <div style={{ padding: '28px 16px', textAlign: 'center', color: '#94A3B8', fontSize: 13, fontWeight: 500 }}>
+                No payment transactions found.
+              </div>
+            ) : (
+              displayedPayments.map((p: PersonalPayment, idx: number) => {
+                const isLast = idx === displayedPayments.length - 1;
+                return p.groupId ? (
+                  <GroupVaultPayRow
+                    key={p.id}
+                    payment={p}
+                    isLast={isLast}
+                    onClick={onOpenGroup ? () => onOpenGroup(p.groupId!) : undefined}
+                  />
+                ) : (
+                  <PersonalPayRow
+                    key={p.id}
+                    payment={p}
+                    isLast={isLast}
+                  />
+                );
+              })
+            )}
+          </div>
+
+          {/* View More / Collapse Footer */}
+          {combinedPayments.length > 5 && (
             <button
-              onClick={() => setOpenId(isOpen ? null : gid)}
+              onClick={() => setShowAll(!showAll)}
               style={{
                 width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '14px 16px',
-                background: `linear-gradient(135deg, ${first.groupCardBg || '#EFF6FF'}D8 0%, rgba(255, 255, 255, 0.90) 100%)`,
-                backdropFilter: 'blur(14px)',
-                WebkitBackdropFilter: 'blur(14px)',
+                padding: '12px 16px',
+                background: 'rgba(248, 250, 252, 0.75)',
                 border: 'none',
+                borderTop: '1px solid rgba(241, 245, 249, 0.9)',
+                color: '#2563EB',
+                fontSize: 12.5,
+                fontWeight: 700,
                 cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'background 0.15s ease',
-              }}
-            >
-              {/* Group circular badge with group theme color */}
-              <div style={{
-                width: 44,
-                height: 44,
-                borderRadius: '50%',
-                background: first.groupTheme || '#2563EB',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flexShrink: 0,
-                boxShadow: `0 4px 12px ${first.groupTheme ? first.groupTheme + '40' : 'rgba(37, 99, 235, 0.28)'}`,
-              }}>
-                {first.groupIcon === 'flatmates' ? (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                    <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
-                  </svg>
-                ) : (
-                  <EmojiBadge name={first.groupIcon || 'wallet'} size={28} shape="circle" bg="transparent" color="#FFFFFF" />
-                )}
-              </div>
-
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 15.5,
-                  fontWeight: 700,
-                  color: '#0F172A',
-                  letterSpacing: '-0.2px',
-                  lineHeight: 1.25,
-                }}>
-                  {first.groupName}
-                </div>
-                <div style={{
-                  fontSize: 12,
-                  color: '#4B5563',
-                  fontWeight: 500,
-                  marginTop: 3,
-                }}>
-                  {items.length} txn · Debited {formatINR(totalPaid)} · Credited {formatINR(totalAdded)}
-                </div>
-              </div>
-
-              {/* Group Theme Chevron */}
+                gap: 6,
+                transition: 'background 0.15s ease',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239, 246, 255, 0.85)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(248, 250, 252, 0.75)')}
+            >
+              <span>{showAll ? 'Show Less' : `View All (${combinedPayments.length}) Payments`}</span>
               <svg
-                width="18"
-                height="18"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 style={{
-                  transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                  flexShrink: 0,
+                  transform: showAll ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s ease',
                 }}
               >
-                <path
-                  d="M6 9l6 6 6-6"
-                  stroke={first.groupTheme || '#1D4ED8'}
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M6 9l6 6 6-6" />
               </svg>
             </button>
-
-            {/* Transactions List */}
-            {isOpen && (
-              <div style={{ background: 'rgba(255, 255, 255, 0.82)' }}>
-                {items.map((p, idx) => (
-                  <PersonalPayRow key={p.id} payment={p} isLast={idx === items.length - 1} />
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
+          )}
+        </div>
+      </section>
     </div>
   );
 }
 
-// ── Single personal payment row ──
+// ── Personal Payment Row (Direct Personal UPI Identity) ──
 function PersonalPayRow({ payment: p, isLast }: { payment: PersonalPayment; isLast: boolean }) {
   const isDebit = p.dir === 'paid';
   const isAdded = p.dir === 'added';
@@ -1397,63 +1740,129 @@ function PersonalPayRow({ payment: p, isLast }: { payment: PersonalPayment; isLa
     ? { bg: '#DCFCE7', color: '#16A34A', label: 'Debited' }
     : { bg: '#FEE2E2', color: '#DC2626', label: isAdded ? 'Credited' : 'Received' };
 
+  // Generate merchant avatar initial or glyph
+  const initials = p.merchant
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0]?.toUpperCase())
+    .join('') || 'UPI';
+
+  // Mode badge icon / label
+  const modeBadge = p.paymentMode || (p.upiRef ? 'UPI ID' : 'Transfer');
+
   return (
     <div
       style={{
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '14px 18px',
+        padding: '13px 16px',
         borderBottom: isLast ? 'none' : '1px solid rgba(241, 245, 249, 0.85)',
         background: 'rgba(255, 255, 255, 0.72)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         transition: 'background 0.15s ease',
       }}
-      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(248, 250, 252, 0.75)')}
-      onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}
+      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(248, 250, 252, 0.85)')}
+      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.72)')}
     >
-      {/* Left Details */}
-      <div style={{ flex: 1, minWidth: 0, paddingRight: 12 }}>
+      {/* Left Details: Merchant Avatar & Metadata */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0, paddingRight: 10 }}>
+        {/* Personal Contact/Merchant Avatar */}
         <div style={{
-          fontSize: 14.5,
-          fontWeight: 700,
-          color: '#111827',
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          background: 'linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%)',
+          color: '#1E293B',
+          fontSize: 13,
+          fontWeight: 800,
           display: 'flex',
           alignItems: 'center',
-          gap: 6,
-          lineHeight: 1.25,
+          justifyContent: 'center',
+          flexShrink: 0,
+          border: '1px solid #CBD5E1',
+          position: 'relative',
         }}>
-          <span>{p.merchant}</span>
-          <span style={{
-            width: 5,
-            height: 5,
+          {initials}
+          {/* Mini mode indicator on bottom right */}
+          <div style={{
+            position: 'absolute',
+            bottom: -2,
+            right: -2,
+            width: 14,
+            height: 14,
             borderRadius: '50%',
-            background: '#CBD5E1',
-            display: 'inline-block',
-            flexShrink: 0,
-          }} />
+            background: '#2563EB',
+            border: '2px solid #FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <svg width="7" height="7" viewBox="0 0 24 24" fill="white">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+          </div>
         </div>
-        <div style={{
-          fontSize: 12,
-          color: '#475569',
-          fontWeight: 500,
-          marginTop: 3,
-          lineHeight: 1.25,
-        }}>
-          {p.note}
-        </div>
-        <div style={{
-          fontSize: 11.5,
-          color: '#64748B',
-          fontWeight: 400,
-          marginTop: 3,
-        }}>
-          {p.date}
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: 14,
+            fontWeight: 700,
+            color: '#111827',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            lineHeight: 1.25,
+          }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.merchant}</span>
+            <span style={{
+              fontSize: 9.5,
+              fontWeight: 700,
+              padding: '1.5px 6px',
+              borderRadius: 6,
+              background: '#F1F5F9',
+              color: '#475569',
+              border: '1px solid #E2E8F0',
+              flexShrink: 0,
+            }}>
+              {modeBadge}
+            </span>
+          </div>
+          <div style={{
+            fontSize: 12,
+            color: '#475569',
+            fontWeight: 500,
+            marginTop: 2,
+            lineHeight: 1.25,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {p.note}
+          </div>
+          <div style={{
+            fontSize: 11,
+            color: '#94A3B8',
+            fontWeight: 500,
+            marginTop: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            <span>{p.date}</span>
+            {p.account && (
+              <>
+                <span>•</span>
+                <span>{p.account}</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Right Column: Amount + Pill Badge */}
+      {/* Right Column: Amount + Status Pill */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
@@ -1461,7 +1870,7 @@ function PersonalPayRow({ payment: p, isLast }: { payment: PersonalPayment; isLa
         flexShrink: 0,
       }}>
         <div style={{
-          fontSize: 15.5,
+          fontSize: 15,
           fontWeight: 700,
           color: amountColor,
           letterSpacing: '-0.3px',
@@ -1471,11 +1880,11 @@ function PersonalPayRow({ payment: p, isLast }: { payment: PersonalPayment; isLa
         </div>
         <span style={{
           display: 'inline-block',
-          marginTop: 6,
-          fontSize: 10.5,
-          fontWeight: 600,
-          padding: '2.5px 9px',
-          borderRadius: 12,
+          marginTop: 4,
+          fontSize: 10,
+          fontWeight: 700,
+          padding: '2px 8px',
+          borderRadius: 10,
           background: pillStyle.bg,
           color: pillStyle.color,
           letterSpacing: '-0.1px',
@@ -1486,3 +1895,171 @@ function PersonalPayRow({ payment: p, isLast }: { payment: PersonalPayment; isLa
     </div>
   );
 }
+
+// ── Group Vault Payment Row (Shared Vault Treasury Identity) ──
+function GroupVaultPayRow({
+  payment: p,
+  isLast,
+  onClick,
+}: {
+  payment: PersonalPayment;
+  isLast: boolean;
+  onClick?: () => void;
+}) {
+  const isDebit = p.dir === 'paid';
+  const isAdded = p.dir === 'added';
+
+  // Green for money debit, Red for credit
+  const amountColor = isDebit ? '#16A34A' : '#DC2626';
+  const amountPrefix = isDebit ? '-₹' : '+₹';
+  const formattedAmount = formatINR(p.amount).replace('₹', '');
+
+  const pillStyle = isDebit
+    ? { bg: '#DCFCE7', color: '#16A34A', label: 'Vault Debited' }
+    : { bg: '#FEE2E2', color: '#DC2626', label: isAdded ? 'Vault Funded' : 'Vault Refund' };
+
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '13px 16px',
+        borderBottom: isLast ? 'none' : '1px solid rgba(241, 245, 249, 0.85)',
+        background: 'rgba(255, 255, 255, 0.72)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'background 0.15s ease',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(248, 250, 252, 0.85)')}
+      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.72)')}
+    >
+      {/* Left Details: Vault Spend Details */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0, paddingRight: 10 }}>
+        {/* Vault Icon */}
+        <div style={{
+          width: 38,
+          height: 38,
+          borderRadius: 12,
+          background: isDebit ? 'rgba(37, 99, 235, 0.08)' : 'rgba(16, 185, 129, 0.10)',
+          color: isDebit ? '#2563EB' : '#059669',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          border: `1px solid ${isDebit ? 'rgba(147, 197, 253, 0.5)' : 'rgba(167, 243, 208, 0.6)'}`,
+        }}>
+          {isDebit ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+              <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+              <path d="M18 12a2 2 0 0 0 0 4h4v-4z" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+          )}
+        </div>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: 14,
+            fontWeight: 700,
+            color: '#111827',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            lineHeight: 1.25,
+          }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.merchant}</span>
+            {p.account && (
+              <span style={{
+                fontSize: 9.5,
+                fontWeight: 700,
+                padding: '1.5px 6px',
+                borderRadius: 6,
+                background: `${p.groupTheme || '#2563EB'}12`,
+                color: p.groupTheme || '#2563EB',
+                border: `1px solid ${p.groupTheme || '#2563EB'}30`,
+                flexShrink: 0,
+              }}>
+                {p.account}
+              </span>
+            )}
+          </div>
+          <div style={{
+            fontSize: 12,
+            color: '#475569',
+            fontWeight: 500,
+            marginTop: 2,
+            lineHeight: 1.25,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {p.note}
+          </div>
+          <div style={{
+            fontSize: 11,
+            color: '#94A3B8',
+            fontWeight: 500,
+            marginTop: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            <span>{p.date}</span>
+            {p.category && (
+              <>
+                <span>•</span>
+                <span>{p.category}</span>
+              </>
+            )}
+            {p.upiRef && (
+              <>
+                <span>•</span>
+                <span>Ref {p.upiRef.slice(-4)}</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Column: Amount + Status Pill */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        flexShrink: 0,
+      }}>
+        <div style={{
+          fontSize: 15,
+          fontWeight: 700,
+          color: amountColor,
+          letterSpacing: '-0.3px',
+          lineHeight: 1.2,
+        }}>
+          {amountPrefix}{formattedAmount}
+        </div>
+        <span style={{
+          display: 'inline-block',
+          marginTop: 4,
+          fontSize: 10,
+          fontWeight: 700,
+          padding: '2px 8px',
+          borderRadius: 10,
+          background: pillStyle.bg,
+          color: pillStyle.color,
+          letterSpacing: '-0.1px',
+        }}>
+          {pillStyle.label}
+        </span>
+      </div>
+    </div>
+  );
+}
+

@@ -12,6 +12,13 @@ export interface Member {
 export interface Group {
   id: string;
   name: string;
+  status: 'active' | 'suspended' | 'terminated';
+  activeMemberCount: number;
+  latestMessage: {
+    sender: string;
+    text: string;
+    time: string;
+  };
   icon: string;
   iconBg: string;
   iconColor: string;
@@ -73,6 +80,27 @@ const AVATARS = {
   vikram: 'https://images.unsplash.com/photo-1463453091185-61582044d556?w=100&h=100&fit=crop&crop=faces',
 };
 
+export interface Contact {
+  id: string;
+  name: string;
+  phone: string;
+  upiId: string;
+  avatar: string;
+  bankName: string;
+  isRecent?: boolean;
+}
+
+export const MOCK_CONTACTS: Contact[] = [
+  { id: 'c1', name: 'Aarav Sharma', phone: '+91 98201 44521', upiId: 'aarav@okhdfc', avatar: AVATARS.aarav, bankName: 'HDFC Bank', isRecent: true },
+  { id: 'c2', name: 'Priya Patel', phone: '+91 98450 11234', upiId: 'priya@oksbi', avatar: AVATARS.priya, bankName: 'State Bank of India', isRecent: true },
+  { id: 'c3', name: 'Nikhil Singh', phone: '+91 99302 88471', upiId: 'nikhil@axis', avatar: AVATARS.nikhil, bankName: 'Axis Bank', isRecent: true },
+  { id: 'c4', name: 'Sneha Kulkarni', phone: '+91 98111 67230', upiId: 'sneha@icici', avatar: AVATARS.sneha, bankName: 'ICICI Bank', isRecent: true },
+  { id: 'c5', name: 'Vikram Malhotra', phone: '+91 98765 12098', upiId: 'vikram@paytm', avatar: AVATARS.vikram, bankName: 'Paytm Payments Bank', isRecent: true },
+  { id: 'c6', name: 'Ananya Verma', phone: '+91 97654 32109', upiId: 'ananya@ybl', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces', bankName: 'Yes Bank' },
+  { id: 'c7', name: 'Rohan Gupta', phone: '+91 98220 54321', upiId: 'rohan@kotak', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop&crop=faces', bankName: 'Kotak Mahindra' },
+  { id: 'c8', name: 'Tanvi Joshi', phone: '+91 98334 90123', upiId: 'tanvi@ibl', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop&crop=faces', bankName: 'IndusInd Bank' },
+];
+
 export const CURRENT_USER = {
   id: 'u1',
   name: 'Mrunali',
@@ -88,6 +116,9 @@ export const MOCK_GROUPS: Group[] = [
   {
     id: 'g1',
     name: 'Flatmates',
+    status: 'active',
+    activeMemberCount: 4,
+    latestMessage: { sender: 'Aarav', text: 'Can someone pick up groceries on the way?', time: '10:42 AM' },
     icon: 'flatmates',
     iconBg: '#2563EB',
     iconColor: '#FFFFFF',
@@ -108,12 +139,15 @@ export const MOCK_GROUPS: Group[] = [
   {
     id: 'g2',
     name: 'Ganpati Group',
+    status: 'active',
+    activeMemberCount: 6,
+    latestMessage: { sender: 'Priya', text: 'The decorations are arriving tomorrow.', time: 'Yesterday' },
     icon: 'ganpati',
-    iconBg: '#7C3AED',
+    iconBg: '#1D4ED8',
     iconColor: '#FFFFFF',
-    cardBg: '#EDE9FE',
-    cardBorder: '#C4B5FD',
-    themeColor: '#7C3AED',
+    cardBg: '#DBEAFE',
+    cardBorder: '#93C5FD',
+    themeColor: '#1D4ED8',
     balance: 3200,
     cap: 5000,
     members: [
@@ -130,12 +164,15 @@ export const MOCK_GROUPS: Group[] = [
   {
     id: 'g3',
     name: 'Weekend Group',
+    status: 'terminated',
+    activeMemberCount: 0,
+    latestMessage: { sender: 'Nikhil', text: 'Let us plan this again soon.', time: 'Mon' },
     icon: 'weekend',
-    iconBg: '#16A34A',
+    iconBg: '#60A5FA',
     iconColor: '#FFFFFF',
-    cardBg: '#DCFCE7',
-    cardBorder: '#86EFAC',
-    themeColor: '#16A34A',
+    cardBg: '#EFF6FF',
+    cardBorder: '#BFDBFE',
+    themeColor: '#60A5FA',
     balance: 2350,
     cap: 5000,
     members: [
@@ -151,12 +188,15 @@ export const MOCK_GROUPS: Group[] = [
   {
     id: 'g4',
     name: 'Office Lunch',
+    status: 'terminated',
+    activeMemberCount: 0,
+    latestMessage: { sender: 'Mrunali', text: 'This group has been closed.', time: 'Oct 4' },
     icon: 'dining',
-    iconBg: '#7C3AED',
+    iconBg: '#1D4ED8',
     iconColor: '#FFFFFF',
-    cardBg: '#EDE9FE',
-    cardBorder: '#C4B5FD',
-    themeColor: '#7C3AED',
+    cardBg: '#DBEAFE',
+    cardBorder: '#93C5FD',
+    themeColor: '#1D4ED8',
     balance: 1800,
     cap: 3000,
     members: [
@@ -400,19 +440,19 @@ export const MOCK_PERSONAL_PAYMENTS: PersonalPayment[] = [
     merchant: 'Wallet Top-up', note: 'Added money to group', amount: 2000, dir: 'added', date: 'Yesterday, 6:00 PM', status: 'success', account: 'HDFC Bank •••• 4921', upiRef: '4291772019', category: 'Deposit' },
   { id: 'pp3', groupId: 'g1', groupName: 'Flatmates', groupIcon: 'flatmates', groupTheme: '#2563EB', groupCardBg: '#DBEAFE',
     merchant: 'Electricity Bill', note: 'Oct electricity', amount: 760, dir: 'paid', date: 'Oct 6, 9:15 AM', status: 'success', account: 'Flatmates Vault', upiRef: '4291663012', category: 'Bills' },
-  { id: 'pp4', groupId: 'g2', groupName: 'Ganpati Group', groupIcon: 'ganpati', groupTheme: '#7C3AED', groupCardBg: '#EDE9FE',
+  { id: 'pp4', groupId: 'g2', groupName: 'Ganpati Group', groupIcon: 'ganpati', groupTheme: '#1D4ED8', groupCardBg: '#DBEAFE',
     merchant: 'Decoration Shop', note: 'Flowers & pooja items', amount: 320, dir: 'paid', date: 'Oct 5, 11:00 AM', status: 'success', account: 'Ganpati Vault', upiRef: '4291554011', category: 'Festival' },
-  { id: 'pp5', groupId: 'g2', groupName: 'Ganpati Group', groupIcon: 'ganpati', groupTheme: '#7C3AED', groupCardBg: '#EDE9FE',
+  { id: 'pp5', groupId: 'g2', groupName: 'Ganpati Group', groupIcon: 'ganpati', groupTheme: '#1D4ED8', groupCardBg: '#DBEAFE',
     merchant: 'Wallet Top-up', note: 'Festival fund', amount: 1000, dir: 'added', date: 'Oct 4, 2:00 PM', status: 'success', account: 'HDFC Bank •••• 4921', upiRef: '4291445010', category: 'Deposit' },
-  { id: 'pp6', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#16A34A', groupCardBg: '#DCFCE7',
+  { id: 'pp6', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#60A5FA', groupCardBg: '#EFF6FF',
     merchant: 'OYO Rooms', note: 'Hotel – 2 nights Lonavala', amount: 3500, dir: 'paid', date: 'Oct 3, 4:45 PM', status: 'pending', account: 'Weekend Vault', upiRef: '4291336015', category: 'Travel' },
-  { id: 'pp7', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#16A34A', groupCardBg: '#DCFCE7',
+  { id: 'pp7', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#60A5FA', groupCardBg: '#EFF6FF',
     merchant: 'Swiggy', note: 'Group dinner on trip', amount: 840, dir: 'paid', date: 'Oct 2, 8:30 PM', status: 'success', account: 'Weekend Vault', upiRef: '4291227014', category: 'Food' },
-  { id: 'pp8', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#16A34A', groupCardBg: '#DCFCE7',
+  { id: 'pp8', groupId: 'g3', groupName: 'Weekend Group', groupIcon: 'weekend', groupTheme: '#60A5FA', groupCardBg: '#EFF6FF',
     merchant: 'Refund', note: 'Trip cancellation refund', amount: 500, dir: 'received', date: 'Oct 1, 12:00 PM', status: 'success', account: 'Weekend Vault', upiRef: '4291118018', category: 'Refund' },
-  { id: 'pp9', groupId: 'g4', groupName: 'Office Lunch', groupIcon: 'dining', groupTheme: '#7C3AED', groupCardBg: '#EDE9FE',
+  { id: 'pp9', groupId: 'g4', groupName: 'Office Lunch', groupIcon: 'dining', groupTheme: '#1D4ED8', groupCardBg: '#DBEAFE',
     merchant: 'Zomato', note: 'Team lunch order', amount: 650, dir: 'paid', date: 'Sep 30, 1:15 PM', status: 'success', account: 'Lunch Vault', upiRef: '4291009017', category: 'Food' },
-  { id: 'pp10', groupId: 'g4', groupName: 'Office Lunch', groupIcon: 'dining', groupTheme: '#7C3AED', groupCardBg: '#EDE9FE',
+  { id: 'pp10', groupId: 'g4', groupName: 'Office Lunch', groupIcon: 'dining', groupTheme: '#1D4ED8', groupCardBg: '#DBEAFE',
     merchant: 'Wallet Top-up', note: 'Oct lunch fund', amount: 800, dir: 'added', date: 'Sep 29, 9:00 AM', status: 'success', account: 'HDFC Bank •••• 4921', upiRef: '4290991016', category: 'Deposit' },
 ];
 

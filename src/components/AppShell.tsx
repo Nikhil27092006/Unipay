@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { BottomNav } from './BottomNav';
 import { PaymentHubModal } from './PaymentHubModal';
 
-const NO_NAV_ROUTES = ['/login', '/otp', '/onboarding', '/kyc'];
+const NO_NAV_ROUTES = ['/login', '/otp', '/onboarding', '/kyc', '/pay'];
 
 export function AppShell() {
   const location = useLocation();
