@@ -1489,28 +1489,6 @@ export function GroupDetail() {
                   }}
                 />
               </div>
-              {/* Quick Chip Presets */}
-              <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                {['500', '1000', '2000', '5000'].map(val => (
-                  <button
-                    key={val}
-                    onClick={() => setSendAmount(val)}
-                    style={{
-                      flex: 1,
-                      padding: '5px 0',
-                      background: sendAmount === val ? '#DCFCE7' : '#F3F4F6',
-                      color: sendAmount === val ? '#059669' : '#4B5563',
-                      border: sendAmount === val ? '1px solid #86EFAC' : 'none',
-                      borderRadius: 8,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    +₹{val}
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div style={{ marginBottom: 20 }}>
