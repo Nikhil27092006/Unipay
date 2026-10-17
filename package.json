@@ -1,0 +1,11 @@
+{
+  "name": "unipay",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix Frontend run dev",
+    "build": "npm --prefix Frontend run build",
+    "preview": "npm --prefix Frontend run preview",
+    "frontend": "npm --prefix Frontend run dev"
+  }
+}
